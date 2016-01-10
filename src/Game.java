@@ -20,8 +20,7 @@ public class Game {
 	}
 	
 	public void update(int delta){
-		//TODO cache walls in plane
-		player.update(camera.getDirection(), world.getWallsInPlane(camera.getDirection(), player.getGridX(), player.getGridY(), player.getGridZ()));
+		player.update(camera.getDirection(), world);
 		camera.update();
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
 		
@@ -37,7 +36,7 @@ public class Game {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		double d = World.CUBE_SIZE * zoom;
-		GL11.glOrtho(-d, d, -d, d, d, -d * 2);
+		GL11.glOrtho(-d, d, -d, d, d * 2, -d * 2);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 		
@@ -52,10 +51,6 @@ public class Game {
 		axes.render();
 	}
 	
-//	public Camera.Direction getCameraDirection(){
-//		return camera.getDirection();
-//	}
-	
 	public float[] getPlayerPosition(){
 		float[] pos = {player.getX(), player.getY(), player.getZ()};
 		return pos;
@@ -63,6 +58,10 @@ public class Game {
 	
 	public void alignPlayer(){
 		player.alignPosition();
+	}
+	
+	public void updateWallsInPlane(Camera.Direction direction){
+		world.updateWallsInPlane(direction, player.getGridX(), player.getGridY(), player.getGridZ());
 	}
 	
 	public void createWalls(Camera.Direction direction){

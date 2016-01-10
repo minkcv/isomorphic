@@ -25,22 +25,22 @@ public class Player {
 		sidePlayer = new SidePlayer((int)z, (int)y, (int)width, (int)height);
 	}
 	
-	public void update(Camera.Direction direction, ArrayList<Wall> walls){
+	public void update(Camera.Direction direction, World world){
 		xVelocity = 0;
 		yVelocity = 0;
 		zVelocity = 0;
 		if(direction == Camera.Direction.X){
-			sidePlayer.update(walls, (int)z, (int)y, false);
+			sidePlayer.update(world.getYZWalls(), (int)z, (int)y, false);
 			z = sidePlayer.getX();
 			y = sidePlayer.getY();
 		}
 		else if(direction == Camera.Direction.Y){
-			topPlayer.update(walls, (int)x, (int)z);
+			topPlayer.update(world.getXZWalls(), (int)x, (int)z);
 			x = topPlayer.getX();
 			z = topPlayer.getY();
 		}
 		else if(direction == Camera.Direction.Z){
-			sidePlayer.update(walls, (int)x, (int)y, true);
+			sidePlayer.update(world.getXYWalls(), (int)x, (int)y, true);
 			x = sidePlayer.getX();
 			y = sidePlayer.getY();
 		}

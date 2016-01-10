@@ -22,6 +22,9 @@ public class World {
 		this.game = game;
 		loadWorld(3);
 		light = new Light(-60, 50, -30);
+		yzWalls = new ArrayList<Wall>();
+		xzWalls = new ArrayList<Wall>();
+		xyWalls = new ArrayList<Wall>();
 	}
 	
 	private void loadWorld(int worldNumber){
@@ -47,42 +50,81 @@ public class World {
 		}
 	}
 	
+	
+//	public ArrayList<Wall> getWallsInPlane(Camera.Direction direction, int x, int y, int z){
+//		ArrayList<Wall> walls = new ArrayList<Wall>();
+//		if(direction == Camera.Direction.X){ // side
+//			for (int y2 = 0; y2 < cubes[x].length; y2++) {
+//				for (int z2 = 0; z2 < cubes[x][y2].length; z2++) {
+//					if(cubes[x][y2][z2] != null){
+//						walls.add(new Wall(z2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+//					}
+//				}
+//			}
+//		}
+//		else if(direction == Camera.Direction.Y){ // top
+//			for (int x2 = 0; x2 < cubes.length; x2++) {
+//				for (int z2 = 0; z2 < cubes[x2][y].length; z2++) { // walls where there are cubes in the same plane
+//					if(cubes[x2][y][z2] != null){
+//						walls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+//					}
+//					for(int y2 = y - 1; y2 >= 0; y2--){ // walls where there is no floor in the same plane
+//						if(cubes[x2][y2][z2] == null){
+//							walls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+//						}
+//					}
+//				}
+//			}
+//		}
+//		else if(direction == Camera.Direction.Z){ // side
+//			for (int x2 = 0; x2 < cubes.length; x2++) {
+//				for (int y2 = 0; y2 < cubes[x2].length; y2++) {
+//					if(cubes[x2][y2][z] != null){
+//						walls.add(new Wall(x2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+//					}
+//				}
+//			}
+//		}
+//		return walls;
+//	}
+	
 	//xyz: player grid position
-	public ArrayList<Wall> getWallsInPlane(Camera.Direction direction, int x, int y, int z){
-		ArrayList<Wall> walls = new ArrayList<Wall>();
+	public void updateWallsInPlane(Camera.Direction direction, int x, int y, int z){
 		if(direction == Camera.Direction.X){ // side
+			yzWalls = new ArrayList<Wall>();
 			for (int y2 = 0; y2 < cubes[x].length; y2++) {
 				for (int z2 = 0; z2 < cubes[x][y2].length; z2++) {
 					if(cubes[x][y2][z2] != null){
-						walls.add(new Wall(z2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+						yzWalls.add(new Wall(z2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 				}
 			}
 		}
 		else if(direction == Camera.Direction.Y){ // top
+			xzWalls = new ArrayList<Wall>();
 			for (int x2 = 0; x2 < cubes.length; x2++) {
 				for (int z2 = 0; z2 < cubes[x2][y].length; z2++) { // walls where there are cubes in the same plane
 					if(cubes[x2][y][z2] != null){
-						walls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 					for(int y2 = y - 1; y2 >= 0; y2--){ // walls where there is no floor in the same plane
 						if(cubes[x2][y2][z2] == null){
-							walls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+							xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 						}
 					}
 				}
 			}
 		}
 		else if(direction == Camera.Direction.Z){ // side
+			xyWalls = new ArrayList<Wall>();
 			for (int x2 = 0; x2 < cubes.length; x2++) {
 				for (int y2 = 0; y2 < cubes[x2].length; y2++) {
 					if(cubes[x2][y2][z] != null){
-						walls.add(new Wall(x2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+						xyWalls.add(new Wall(x2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 				}
 			}
 		}
-		return walls;
 	}
 
 	public void render(Camera.Direction direction){
@@ -122,6 +164,16 @@ public class World {
 				}
 			}
 		}
+	}
+	
+	public ArrayList<Wall> getXZWalls(){
+		return xzWalls;
+	}
+	public ArrayList<Wall> getXYWalls(){
+		return xyWalls;
+	}
+	public ArrayList<Wall> getYZWalls(){
+		return yzWalls;
 	}
 	
 	public static int getCurrentWorldSize(){

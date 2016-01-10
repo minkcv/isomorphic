@@ -15,6 +15,7 @@ public class Camera {
 		X, Y, Z, ISO, FREE
 	}
 	private Direction direction;
+	private Direction previousDirection;
 	public Camera(Game game){
 		this.game = game;
 		direction = Direction.X;
@@ -73,7 +74,8 @@ public class Camera {
 		else{
 			rightReleased = true;
 		}
-		if(Mouse.isButtonDown(2)){
+		
+		if(Mouse.isButtonDown(0)){
 			game.alignPlayer();
 			direction = Direction.FREE;
 		}
@@ -91,6 +93,8 @@ public class Camera {
 			yRotation += Mouse.getDY();
 		}
 		else{
+			Mouse.getDX(); // value not used, intentional side effect
+			Mouse.getDY();
 			if(xRotation > newXRotation)
 				xRotation -= rotateSpeed;
 			if(xRotation < newXRotation)
@@ -100,6 +104,12 @@ public class Camera {
 			if(yRotation < newYRotation)
 				yRotation += rotateSpeed;
 		}
+		
+		if(direction != previousDirection){
+			game.updateWallsInPlane(direction);
+			game.alignPlayer();
+		}
+		previousDirection = direction;
 	}
 
 	public void transformToCamera(){
