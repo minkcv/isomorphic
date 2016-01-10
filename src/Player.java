@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -5,86 +7,69 @@ import org.lwjgl.opengl.GL11;
 public class Player {
 	private Game game;
 	private float x, y, z;
+	private float xVelocity, yVelocity, zVelocity;
 	private float width, depth, height;
 	private float moveSpeed = 1;
+	private TopPlayer topPlayer;
+	private SidePlayer sidePlayer;
 	public Player(Game game, float x, float y, float z){
 		this.game = game;
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		width = World.dimension;
-		height = World.dimension * 2;
-		depth = World.dimension;
+		width = World.CUBE_SIZE;
+		height = World.CUBE_SIZE * 2;
+		depth = World.CUBE_SIZE;
+		
+		topPlayer = new TopPlayer((int)x, (int)z, (int)width, (int)depth);
+		sidePlayer = new SidePlayer((int)z, (int)y, (int)width, (int)height);
 	}
 	
-	public void update(){
-		Camera.Direction direction = game.getCameraDirection();
+	public void update(Camera.Direction direction, ArrayList<Wall> walls){
+		xVelocity = 0;
+		yVelocity = 0;
+		zVelocity = 0;
 		if(direction == Camera.Direction.X){
-			if(Keyboard.isKeyDown(Keyboard.KEY_W)){
-				y += moveSpeed;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_S)){
-				y -= moveSpeed;
-			}
-			if(Keyboard.isKeyDown(Keyboard.KEY_A)){
-				z += moveSpeed;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_D)){
-				z -= moveSpeed;
-			}
+			sidePlayer.update(walls, (int)z, (int)y, false);
+			z = sidePlayer.getX();
+			y = sidePlayer.getY();
 		}
 		else if(direction == Camera.Direction.Y){
-			if(Keyboard.isKeyDown(Keyboard.KEY_W)){
-				z += moveSpeed;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_S)){
-				z -= moveSpeed;
-			}
-			if(Keyboard.isKeyDown(Keyboard.KEY_A)){
-				x -= moveSpeed;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_D)){
-				x += moveSpeed;
-			}
-			
+			topPlayer.update(walls, (int)x, (int)z);
+			x = topPlayer.getX();
+			z = topPlayer.getY();
 		}
 		else if(direction == Camera.Direction.Z){
-			if(Keyboard.isKeyDown(Keyboard.KEY_W)){
-				y += moveSpeed;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_S)){
-				y -= moveSpeed;
-			}
-			if(Keyboard.isKeyDown(Keyboard.KEY_A)){
-				x -= moveSpeed;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_D)){
-				x += moveSpeed;
-			}
+			sidePlayer.update(walls, (int)x, (int)y, true);
+			x = sidePlayer.getX();
+			y = sidePlayer.getY();
 		}
 		
+		x += xVelocity;
+		y += yVelocity;
+		z += zVelocity;
 	}
 	
 	public void alignPosition(){
-		if(x % World.dimension > World.dimension / 2){
-			x += x % World.dimension;
+		if(x % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
+			x += World.CUBE_SIZE - (x % World.CUBE_SIZE);
 		}
-		else{
-			x -= x % World.dimension;
-		}
-		
-		if(y % World.dimension > World.dimension / 2){
-			y += y % World.dimension;
-		}
-		else{
-			y -= y % World.dimension;
+		else if(x % World.CUBE_SIZE < World.CUBE_SIZE / 2){
+			x -= x % World.CUBE_SIZE;
 		}
 		
-		if(z % World.dimension > World.dimension / 2){
-			z += z % World.dimension;
+		if(y % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
+			y += World.CUBE_SIZE - (y % World.CUBE_SIZE);
 		}
-		else{
-			z -= z % World.dimension;
+		else if(y % World.CUBE_SIZE < World.CUBE_SIZE / 2){
+			y -= y % World.CUBE_SIZE;
+		}
+		
+		if(z % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
+			z += World.CUBE_SIZE - (z % World.CUBE_SIZE);
+		}
+		else if(z % World.CUBE_SIZE < World.CUBE_SIZE / 2){
+			z -= z % World.CUBE_SIZE;
 		}
 	}
 	
@@ -141,4 +126,8 @@ public class Player {
 	public float getX(){ return x; }
 	public float getY(){ return y; }
 	public float getZ(){ return z; }
+	
+	public int getGridX(){ return (int)x / World.CUBE_SIZE; }
+	public int getGridY(){ return (int)y / World.CUBE_SIZE; }
+	public int getGridZ(){ return (int)z / World.CUBE_SIZE; }
 }

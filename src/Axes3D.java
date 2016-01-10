@@ -12,6 +12,7 @@ public class Axes3D {
 	}
 	
 	public void render(){
+		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glColor3f(1f, 0f, 0f);
 		GL11.glBegin(GL11.GL_LINES);
 		{

@@ -152,6 +152,7 @@ public class Main {
 	public int getFPS(){
 		return fps;
 	}
+	
 	public void setOnMenu(boolean onMenu){
 		this.onMenu = onMenu;
 	}

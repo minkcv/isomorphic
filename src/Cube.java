@@ -6,7 +6,8 @@ public class Cube {
 	private float x, y, z;
 	private float width, height, depth;
 
-	public Cube(float x, float y, float z, float width, float height, float depth){
+	public Cube(float x, float y, float z, 
+				float width, float height, float depth){
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -19,11 +20,15 @@ public class Cube {
 		
 	}
 	
-	public void render(){
+	public void render(boolean inPlane){
 		GL11.glTranslatef(x, y, z);
 		GL11.glBegin(GL11.GL_QUADS);
 		{
-			GL11.glColor3f((26 - y) / 25f, 0.5f, 1);
+			if(inPlane)
+				GL11.glColor3f(0, 0, 1f);
+			else
+				GL11.glColor3f(0, 0, 0.8f);
+			
 			GL11.glNormal3f(0, 0, -1);
 			GL11.glVertex3f(0, 0, 0);
 			GL11.glVertex3f(0, height, 0);

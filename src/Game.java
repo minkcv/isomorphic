@@ -1,3 +1,4 @@
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 
@@ -6,41 +7,54 @@ public class Game {
 	private Camera camera;
 	private World world;
 	private Player player;
+	private float zoom = 10;
+	private float minZoom = 5;
+	private float maxZoom = 20;
+	private Axes3D axes;
 	public Game(Main main){
 		this.main = main;
 		camera = new Camera(this);
 		world = new World(this);
-		float a = (World.dimension * World.dimension) / 2;
-		camera.setPosition(a, a, a);
-		player = new Player(this, 0, 0, 0);
+		player = new Player(this, 0, 10, 0);
+		axes = new Axes3D(10);
 	}
 	
 	public void update(int delta){
+		//TODO cache walls in plane
+		player.update(camera.getDirection(), world.getWallsInPlane(camera.getDirection(), player.getGridX(), player.getGridY(), player.getGridZ()));
 		camera.update();
-		player.update();
+		camera.setPosition(player.getX(), player.getY(), player.getZ());
+		
+		zoom -= Mouse.getDWheel() / 120;
+		if(zoom < minZoom)
+			zoom = minZoom;
+		else if(zoom > maxZoom)
+			zoom = maxZoom;
 	}
 	
 	public void render(){
-//		GL11.glEnable(GL11.GL_BLEND);
-//		GL11.glEnable(GL11.GL_COLOR_MATERIAL); // for lighting
-//		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		double d = world.dimension * 10;
-		GL11.glOrtho(-d, d, -d, d, d, -d);
+		double d = World.CUBE_SIZE * zoom;
+		GL11.glOrtho(-d, d, -d, d, d, -d * 2);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 		
 		camera.transformToCamera();
 		
-		world.render();
+		world.render(camera.getDirection());
 		player.render();
+		
+		camera.undoTransform();
+		GL11.glTranslatef(-80, -80, 0);
+		camera.rotateToCamera();
+		axes.render();
 	}
 	
-	public Camera.Direction getCameraDirection(){
-		return camera.getDirection();
-	}
+//	public Camera.Direction getCameraDirection(){
+//		return camera.getDirection();
+//	}
 	
 	public float[] getPlayerPosition(){
 		float[] pos = {player.getX(), player.getY(), player.getZ()};
@@ -49,5 +63,9 @@ public class Game {
 	
 	public void alignPlayer(){
 		player.alignPosition();
+	}
+	
+	public void createWalls(Camera.Direction direction){
+		
 	}
 }
