@@ -45,18 +45,19 @@ public class Player {
 			y = sidePlayer.getY();
 		}
 		
+		// keep player in world bounds
 		if(x < 0)
 			x = 0;
 		if(y < 0)
 			y = 0;
 		if(z < 0)
 			z = 0;
-		if(x > World.getCurrentWorldSize() * World.CUBE_SIZE - World.CUBE_SIZE)
-			x = World.getCurrentWorldSize() * World.CUBE_SIZE - World.CUBE_SIZE;
-		if(y > World.getCurrentWorldSize() * World.CUBE_SIZE - World.CUBE_SIZE)
-			y = World.getCurrentWorldSize() * World.CUBE_SIZE - World.CUBE_SIZE;
-		if(z > World.getCurrentWorldSize() * World.CUBE_SIZE - World.CUBE_SIZE)
-			z = World.getCurrentWorldSize() * World.CUBE_SIZE - World.CUBE_SIZE;
+		if(x > World.getSizeX() * World.CUBE_SIZE - World.CUBE_SIZE)
+			x = World.getSizeX() * World.CUBE_SIZE - World.CUBE_SIZE;
+		if(y > World.getSizeY() * World.CUBE_SIZE - World.CUBE_SIZE)
+			y = World.getSizeY() * World.CUBE_SIZE - World.CUBE_SIZE;
+		if(z > World.getSizeZ() * World.CUBE_SIZE - World.CUBE_SIZE)
+			z = World.getSizeZ() * World.CUBE_SIZE - World.CUBE_SIZE;
 		
 		x += xVelocity;
 		y += yVelocity;
