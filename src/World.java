@@ -1,12 +1,11 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
-
 import javax.imageio.ImageIO;
 
-import org.newdawn.slick.Color;
+//import org.newdawn.slick.Color;
 
 
 public class World {
@@ -22,7 +21,7 @@ public class World {
 	private ArrayList<Wall> yzWalls;
 	public World(Game game){
 		this.game = game;
-		loadWorld(1);
+		loadWorld(4);
 		light = new Light(-60, 50, -30);
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
@@ -41,10 +40,12 @@ public class World {
 				BufferedImage worldMap = ImageIO.read( getClass().getResource("/resources/worlds/" + worldNumber + "/" + y + ".png"));
 				for (int x = 0; x < worldSizeX; x++) {
 					for (int z = 0; z < worldSizeZ; z++) {
-						Color c = new Color(worldMap.getRGB(x, z));
-						if(c.getBlue() == 255 && c.getRed() == 0 && c.getGreen() == 0 && c.getAlpha() == 255){
+						Color c = new Color(worldMap.getRGB(x, z), true);
+						System.out.println(c.getAlpha());
+						if(c.getAlpha() == 255){
 							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE, 
-									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
+									c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f);
 						}
 					}
 				}
@@ -73,10 +74,9 @@ public class World {
 					if(cubes[x2][y][z2] != null){
 						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
-					for(int y2 = y - 1; y2 >= 0; y2--){ // walls where there is no floor in the same plane
-						if(cubes[x2][y2][z2] == null){
-							xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
-						}
+
+					if(y - 1 >= 0 && cubes[x2][y - 1][z2] == null){
+						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 				}
 			}
@@ -103,28 +103,31 @@ public class World {
 				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
 					if(cubes[i][j][j2] != null){
 						if(direction == Camera.Direction.X){
-							if(i * CUBE_SIZE > playerX)
-								cubes[i][j][j2].render(false);
-							else if(i * CUBE_SIZE == playerX)
-								cubes[i][j][j2].render(true);
+							float distanceFromPlayer = i * CUBE_SIZE - playerX;
+							if(distanceFromPlayer == 0)
+								cubes[i][j][j2].render(0);
+							else if(distanceFromPlayer > 0)
+								cubes[i][j][j2].render(distanceFromPlayer / 255);
 						}
 						else if(direction == Camera.Direction.Z){
-							if(j2 * CUBE_SIZE > playerZ)
-								cubes[i][j][j2].render(false);
-							else if(j2 * CUBE_SIZE == playerZ)
-								cubes[i][j][j2].render(true);
+							float distanceFromPlayer = j2 * CUBE_SIZE - playerZ;
+							if(distanceFromPlayer == 0)
+								cubes[i][j][j2].render(0);
+							else if(distanceFromPlayer > 0)
+								cubes[i][j][j2].render(distanceFromPlayer / 255);
 						}
 						else if(direction == Camera.Direction.Y){
-							if(j * CUBE_SIZE < playerY)
-								cubes[i][j][j2].render(false);
-							else if(j * CUBE_SIZE == playerY)
-								cubes[i][j][j2].render(true);
+							float distanceFromPlayer = j * CUBE_SIZE - playerY;
+							if(distanceFromPlayer == 0 || distanceFromPlayer == CUBE_SIZE)
+								cubes[i][j][j2].render(0);
+							else if(distanceFromPlayer < 0)
+								cubes[i][j][j2].render(-distanceFromPlayer / 255);
 						}
 						else if(direction == Camera.Direction.ISO){
-							cubes[i][j][j2].render(true);
+							cubes[i][j][j2].render(0);
 						}
 						else if(direction == Camera.Direction.FREE){
-							cubes[i][j][j2].render(true);
+							cubes[i][j][j2].render(0);
 						}
 					}
 				}

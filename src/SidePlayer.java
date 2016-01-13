@@ -27,6 +27,8 @@ public class SidePlayer {
 	private int maxFallSpeed;
 	private boolean touchingGround;
 	private boolean wReleased;
+	private final int normalFallFactor = 60; // can jump 3 cubes high
+	private final int highJumpFallFactor = 80; // can jump 5 cubes high
 
 	public SidePlayer(int x, int y, int width, int height){
 		this.x = x;
@@ -35,7 +37,7 @@ public class SidePlayer {
 		this.height = height;
 		jumpSpeed = 2;
 		maxFallSpeed = -4;
-		fallFactor = 80;
+		fallFactor = normalFallFactor;
 		xMoveSpeed = 1;
 	}
 

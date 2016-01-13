@@ -4,13 +4,18 @@ import org.lwjgl.opengl.GL11;
 public class Cube {
 	
 	private float x, y, z;
+	private float r, g, b;
 	private float width, height, depth;
 
 	public Cube(float x, float y, float z, 
-				float width, float height, float depth){
+				float width, float height, float depth,
+				float r, float g, float b){
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.r = r;
+		this.g = g;
+		this.b = b;
 		this.width = width;
 		this.depth = height;
 		this.height = depth;
@@ -20,14 +25,12 @@ public class Cube {
 		
 	}
 	
-	public void render(boolean inPlane){
+	public void render(float shade){
 		GL11.glTranslatef(x, y, z);
 		GL11.glBegin(GL11.GL_QUADS);
 		{
-			if(inPlane)
-				GL11.glColor3f(0, 0, 1f);
-			else
-				GL11.glColor3f(0, 0, 0.8f);
+			GL11.glColor3f(r - shade, g - shade, b - shade);
+			
 			
 			GL11.glNormal3f(0, 0, -1);
 			GL11.glVertex3f(0, 0, 0);
