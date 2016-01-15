@@ -41,7 +41,6 @@ public class World {
 				for (int x = 0; x < worldSizeX; x++) {
 					for (int z = 0; z < worldSizeZ; z++) {
 						Color c = new Color(worldMap.getRGB(x, z), true);
-						System.out.println(c.getAlpha());
 						if(c.getAlpha() == 255){
 							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE, 
 									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
@@ -87,6 +86,26 @@ public class World {
 				for (int y2 = 0; y2 < cubes[x2].length; y2++) {
 					if(cubes[x2][y2][z] != null){
 						xyWalls.add(new Wall(x2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+					}
+				}
+			}
+		}
+	}
+	
+	public void cullCubes(float centerX, float centerY, float centerZ, float distance){
+		for (int i = 0; i < cubes.length; i++) {
+			for (int j = 0; j < cubes[i].length; j++) {
+				for (int j2 = 0; j2 < cubes[i][j2].length; j2++) {
+					if(cubes[i][j][j2] != null){
+						float cubeX = i * CUBE_SIZE;
+						float cubeY = j * CUBE_SIZE;
+						float cubeZ = j2 * CUBE_SIZE;
+						if(Math.abs(centerX - cubeX) > distance || Math.abs(centerY - cubeY) > distance || Math.abs(centerZ - cubeZ) > distance){
+							cubes[i][j][j2].setCulled(true);
+						}
+						else{
+							cubes[i][j][j2].setCulled(false);
+						}
 					}
 				}
 			}

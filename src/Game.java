@@ -23,6 +23,10 @@ public class Game {
 		player.update(camera.getDirection(), world);
 		camera.update();
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
+		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
+			world.cullCubes(player.getX(), player.getY(), player.getZ(), 110);
+		else
+			world.cullCubes(player.getX(), player.getY(), player.getZ(), 220);
 		
 		zoom -= Mouse.getDWheel() / 120;
 		if(zoom < minZoom)
