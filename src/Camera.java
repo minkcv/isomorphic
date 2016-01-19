@@ -28,7 +28,6 @@ public class Camera {
 	public void update(){
 		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
 			if(downReleased && direction != Direction.ISO){
-				game.alignPlayer();
 				direction = Direction.ISO;
 				newXRotation = 45;
 				newYRotation = 45;
@@ -40,7 +39,6 @@ public class Camera {
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
 			if(leftReleased && direction != Direction.X){
-				game.alignPlayer();
 				direction = Direction.X;
 				newXRotation = 90;
 				newYRotation = 0;
@@ -52,7 +50,6 @@ public class Camera {
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_UP)){
 			if(upReleased && direction != Direction.Y){
-				game.alignPlayer();
 				direction = Direction.Y;
 				newXRotation = 0;
 				newYRotation = 90;
@@ -64,7 +61,6 @@ public class Camera {
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)){
 			if(rightReleased && direction != Direction.Z){
-				game.alignPlayer();
 				direction = Direction.Z;
 				newXRotation = 0;
 				newYRotation = 0;
@@ -76,11 +72,9 @@ public class Camera {
 		}
 		
 		if(Mouse.isButtonDown(0)){
-			game.alignPlayer();
 			direction = Direction.FREE;
 		}
 		else if(direction == Direction.FREE){
-			game.alignPlayer();
 			direction = Direction.ISO;
 			newXRotation = 45;
 			newYRotation = 45;
@@ -93,7 +87,7 @@ public class Camera {
 			yRotation += Mouse.getDY();
 		}
 		else{
-			Mouse.getDX(); // value not used, intentional side effect
+			Mouse.getDX(); // return value not used, intentional side effect
 			Mouse.getDY();
 			if(xRotation > newXRotation)
 				xRotation -= rotateSpeed;
@@ -106,8 +100,9 @@ public class Camera {
 		}
 		
 		if(direction != previousDirection){
-			game.updateWallsInPlane(direction);
 			game.alignPlayer();
+			game.updateWallsInPlane(direction);
+			game.alignBoxes();
 		}
 		previousDirection = direction;
 	}
