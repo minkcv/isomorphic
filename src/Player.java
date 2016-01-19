@@ -1,15 +1,10 @@
-import java.util.ArrayList;
-
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 
 public class Player {
 	private Game game;
 	private float x, y, z;
-	private float xVelocity, yVelocity, zVelocity;
 	private float width, depth, height;
-	private float moveSpeed = 1;
 	private TopPlayer topPlayer;
 	private SidePlayer sidePlayer;
 	public Player(Game game, float x, float y, float z){
@@ -26,16 +21,13 @@ public class Player {
 	}
 	
 	public void update(Camera.Direction direction, World world){
-		xVelocity = 0;
-		yVelocity = 0;
-		zVelocity = 0;
 		if(direction == Camera.Direction.X){
 			sidePlayer.update(world.getYZWalls(), (int)z, (int)y, false);
 			z = sidePlayer.getX();
 			y = sidePlayer.getY();
 		}
 		else if(direction == Camera.Direction.Y){
-			topPlayer.update(world.getXZWalls(), (int)x, (int)z);
+			topPlayer.update(world.getXZWalls(), world.getXZBoxes(getGridY()), (int)x, (int)z);
 			x = topPlayer.getX();
 			z = topPlayer.getY();
 		}
@@ -59,9 +51,6 @@ public class Player {
 		if(z > World.getSizeZ() * World.CUBE_SIZE - World.CUBE_SIZE)
 			z = World.getSizeZ() * World.CUBE_SIZE - World.CUBE_SIZE;
 		
-		x += xVelocity;
-		y += yVelocity;
-		z += zVelocity;
 	}
 	
 	public void alignPosition(){

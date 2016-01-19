@@ -1,30 +1,45 @@
 import org.lwjgl.opengl.GL11;
 
 
-public class Cube {
-
-	protected float x, y, z;
-	protected float r, g, b;
-	protected float width, height, depth;
-	protected boolean culled;
-
-	public Cube(float x, float y, float z, 
+public class Box extends Cube{
+	private TopBox topBox;
+	public Box(float x, float y, float z, 
 			float width, float height, float depth,
 			float r, float g, float b){
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.width = width;
-		this.depth = height;
-		this.height = depth;
-		culled = false;
+		super(x, y, z, width, height, depth, r, g, b);
+		
+		topBox = new TopBox((int)x, (int)z, (int)width, (int)height);
 	}
 
 	public void update(World world, Camera.Direction direction){
-
+		if(direction == Camera.Direction.Y){
+			topBox.update(world.getXZWalls(), (int)x, (int)z);
+			x = topBox.getX();
+			z = topBox.getY();
+		}
+	}
+	
+	public void alignPosition(){
+		if(x % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
+			x += World.CUBE_SIZE - (x % World.CUBE_SIZE);
+		}
+		else if(x % World.CUBE_SIZE < World.CUBE_SIZE / 2){
+			x -= x % World.CUBE_SIZE;
+		}
+		
+		if(y % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
+			y += World.CUBE_SIZE - (y % World.CUBE_SIZE);
+		}
+		else if(y % World.CUBE_SIZE < World.CUBE_SIZE / 2){
+			y -= y % World.CUBE_SIZE;
+		}
+		
+		if(z % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
+			z += World.CUBE_SIZE - (z % World.CUBE_SIZE);
+		}
+		else if(z % World.CUBE_SIZE < World.CUBE_SIZE / 2){
+			z -= z % World.CUBE_SIZE;
+		}
 	}
 
 	public void render(float shade){
@@ -80,12 +95,9 @@ public class Cube {
 			GL11.glTranslatef(-x, -y, -z);
 		}
 	}
-
-	public void setCulled(boolean c){ culled = c; }
-
-	public void setPosition(float x, float y, float z){
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+	
+	public TopBox getTopBox(){ return topBox; }
+	public float getX(){ return x; }
+	public float getY(){ return y; }
+	public float getZ(){ return z; }
 }

@@ -21,6 +21,7 @@ public class Game {
 	
 	public void update(int delta){
 		player.update(camera.getDirection(), world);
+		world.update(camera.getDirection());
 		camera.update();
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
 		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
@@ -62,6 +63,10 @@ public class Game {
 	
 	public void alignPlayer(){
 		player.alignPosition();
+	}
+	
+	public void alignBoxes(){
+		world.alignBoxes();
 	}
 	
 	public void updateWallsInPlane(Camera.Direction direction){

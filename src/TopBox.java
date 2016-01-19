@@ -1,14 +1,11 @@
 import java.awt.Rectangle;
 import java.util.ArrayList;
-
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
-public class TopPlayer {
-	private int x, y, width, height;
+
+public class TopBox extends Wall{
 	private int xVelocity, yVelocity;
 	private int moveSpeed = 1;
-	private Rectangle bounding;
 	private Rectangle rightCollisionRect;
 	private Rectangle leftCollisionRect;
 	private Rectangle topCollisionRect;
@@ -18,36 +15,45 @@ public class TopPlayer {
 	private Rectangle bottomLeftCR;
 	private Rectangle bottomRightCR;
 	
-	public TopPlayer(int x, int y, int width, int height){
+	private boolean pushUp; // this box is being pushed upward from the bottom
+	private boolean pushDown;
+	private boolean pushLeft;
+	private boolean pushRight;
+	
+	public TopBox(int x, int y, int width, int height){
+		super(x, y, width, height);
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		updateRectangles();
 	}
 
-	public void update(ArrayList<Wall> walls, ArrayList<TopBox> boxes, int playerX, int playerY){
-		x = playerX;
-		y = playerY;
+	public void update(ArrayList<Wall> walls, int boxX, int boxY){
+		x = boxX;
+		y = boxY;
 		xVelocity = 0;
 		yVelocity = 0;
 		updateRectangles();
-		if(Keyboard.isKeyDown(Keyboard.KEY_W)){
+		if(pushUp){
 			yVelocity = moveSpeed;
 		}
-		else if(Keyboard.isKeyDown(Keyboard.KEY_S)){
+		else if(pushDown){
 			yVelocity = -moveSpeed;
 		}
-		if(Keyboard.isKeyDown(Keyboard.KEY_A)){
+		if(pushLeft){
 			xVelocity = -moveSpeed;
 		}
-		else if(Keyboard.isKeyDown(Keyboard.KEY_D)){
+		else if(pushRight){
 			xVelocity = moveSpeed;
 		}
 		
-		boxCollision(boxes);
+		pushUp = false;
+		pushDown = false;
+		pushLeft = false;
+		pushRight = false;
 		
 		collisionDetection(walls);
-		
 		
 		x += xVelocity;
 		y += yVelocity;
@@ -182,23 +188,16 @@ public class TopPlayer {
 		}
 	}
 	
-	private void boxCollision(ArrayList<TopBox> boxes){
-		for(TopBox b : boxes){
-			if(topCollisionRect.intersects(b.getBottomRect())){
-				b.pushDown();
-			}
-			if(rightCollisionRect.intersects(b.getLeftRect())){
-				b.pushRight();
-			}
-			if(leftCollisionRect.intersects(b.getRightRect())){
-				b.pushLeft();
-			}
-			if(bottomCollisionRect.intersects(b.getTopRect())){
-				b.pushUp();
-			}
-		}
-	}
-	
 	public int getX(){ return x; }
 	public int getY(){ return y; }
+	
+	public void pushLeft(){ pushLeft = true; }
+	public void pushRight(){ pushRight = true; }
+	public void pushDown(){ pushDown = true; }
+	public void pushUp(){ pushUp = true; }
+	
+	public Rectangle getLeftRect(){ return leftCollisionRect; }
+	public Rectangle getRightRect(){ return rightCollisionRect; }
+	public Rectangle getTopRect(){ return topCollisionRect; }
+	public Rectangle getBottomRect(){ return bottomCollisionRect; }
 }

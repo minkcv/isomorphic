@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 public class World {
 	private Game game;
 	private Cube[][][] cubes;
+	private ArrayList<Box> boxes;
 	private Light light;
 	public static final int CUBE_SIZE = 10;
 	private static int worldSizeX;
@@ -26,8 +27,11 @@ public class World {
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
 		xyWalls = new ArrayList<Wall>();
+		boxes = new ArrayList<Box>();
+		boxes.add(new Box(2 * CUBE_SIZE, 1 * CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
+		//cubes[2][1][2] = new Box(2 * CUBE_SIZE, 1 * CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1);
 	}
-	
+
 	private void loadWorld(int worldNumber){
 		Scanner sizeFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/size.txt"));
 		worldSizeX = sizeFile.nextInt();
@@ -53,7 +57,27 @@ public class World {
 			}
 		}
 	}
+
+	public void update(Camera.Direction direction){
+		for (int i = 0; i < cubes.length; i++) {
+			for (int j = 0; j < cubes[i].length; j++) {
+				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
+					if(cubes[i][j][j2] != null)
+						cubes[i][j][j2].update(this, direction);
+				}
+			}
+		}
+		for(Box b : boxes){
+			b.update(this, direction);
+		}
+	}
 	
+	public void alignBoxes(){
+		for(Box b : boxes){
+			b.alignPosition();
+		}
+	}
+
 	//xyz: player grid position
 	public void updateWallsInPlane(Camera.Direction direction, int x, int y, int z){
 		if(direction == Camera.Direction.X){ // side
@@ -74,10 +98,13 @@ public class World {
 						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 
-					if(y - 1 >= 0 && cubes[x2][y - 1][z2] == null){
+					if(y - 1 >= 0 && cubes[x2][y - 1][z2] == null){ // no floor
 						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 				}
+			}
+			for(Box b : boxes){
+				xzWalls.add(b.getTopBox());
 			}
 		}
 		else if(direction == Camera.Direction.Z){ // side
@@ -91,7 +118,7 @@ public class World {
 			}
 		}
 	}
-	
+
 	public void cullCubes(float centerX, float centerY, float centerZ, float distance){
 		for (int i = 0; i < cubes.length; i++) {
 			for (int j = 0; j < cubes[i].length; j++) {
@@ -141,6 +168,8 @@ public class World {
 								cubes[i][j][j2].render(0);
 							else if(distanceFromPlayer < 0)
 								cubes[i][j][j2].render(-distanceFromPlayer / 255);
+							for(Box b : boxes)
+								b.render(0);
 						}
 						else if(direction == Camera.Direction.ISO){
 							cubes[i][j][j2].render(0);
@@ -153,7 +182,7 @@ public class World {
 			}
 		}
 	}
-	
+
 	public ArrayList<Wall> getXZWalls(){
 		return xzWalls;
 	}
@@ -163,7 +192,17 @@ public class World {
 	public ArrayList<Wall> getYZWalls(){
 		return yzWalls;
 	}
-	
+
+	public ArrayList<TopBox> getXZBoxes(int playerGridY){
+		ArrayList<TopBox> xzBoxes = new ArrayList<TopBox>();
+		for(Box b : boxes){
+			if(b.getY() / CUBE_SIZE == playerGridY){
+				xzBoxes.add(b.getTopBox());
+			}
+		}
+		return xzBoxes;
+	}
+
 	public static int getSizeX(){ return worldSizeX; }
 	public static int getSizeY(){ return worldSizeY; }
 	public static int getSizeZ(){ return worldSizeZ; }
