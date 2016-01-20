@@ -22,17 +22,17 @@ public class Player {
 	
 	public void update(Camera.Direction direction, World world){
 		if(direction == Camera.Direction.X){
-			sidePlayer.update(world.getYZWalls(), (int)z, (int)y, false);
+			sidePlayer.update(world.getYZWalls(), world.getYZBoxes(), (int)z, (int)y, false);
 			z = sidePlayer.getX();
 			y = sidePlayer.getY();
 		}
 		else if(direction == Camera.Direction.Y){
-			topPlayer.update(world.getXZWalls(), world.getXZBoxes(getGridY()), (int)x, (int)z);
+			topPlayer.update(world.getXZWalls(), world.getXZBoxes(), (int)x, (int)z);
 			x = topPlayer.getX();
 			z = topPlayer.getY();
 		}
 		else if(direction == Camera.Direction.Z){
-			sidePlayer.update(world.getXYWalls(), (int)x, (int)y, true);
+			sidePlayer.update(world.getXYWalls(), world.getXYBoxes(), (int)x, (int)y, true);
 			x = sidePlayer.getX();
 			y = sidePlayer.getY();
 		}

@@ -8,6 +8,7 @@ public class Game {
 	private World world;
 	private Player player;
 	private float zoom = 10;
+	private float scale; // zoom * cube size
 	private float minZoom = 5;
 	private float maxZoom = 20;
 	private Axes3D axes;
@@ -18,62 +19,67 @@ public class Game {
 		player = new Player(this, 0, 10, 0);
 		axes = new Axes3D(10);
 	}
-	
+
 	public void update(int delta){
-		player.update(camera.getDirection(), world);
-		world.update(camera.getDirection());
+		scale = World.CUBE_SIZE * zoom;
 		camera.update();
+		if(! camera.isRotating()){
+			player.update(camera.getDirection(), world);
+			world.update(camera.getDirection());
+		}
+		else{
+			world.update(camera.getDirection());
+		}
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
 		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
-			world.cullCubes(player.getX(), player.getY(), player.getZ(), 110);
+			world.cullCubes(player.getX(), player.getY(), player.getZ(), scale + World.CUBE_SIZE);
 		else
-			world.cullCubes(player.getX(), player.getY(), player.getZ(), 220);
-		
+			world.cullCubes(player.getX(), player.getY(), player.getZ(), 2 * (scale + World.CUBE_SIZE));
+
 		zoom -= Mouse.getDWheel() / 120;
 		if(zoom < minZoom)
 			zoom = minZoom;
 		else if(zoom > maxZoom)
 			zoom = maxZoom;
 	}
-	
+
 	public void render(){
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		double d = World.CUBE_SIZE * zoom;
-		GL11.glOrtho(-d, d, -d, d, d * 2, -d * 2);
+		GL11.glOrtho(-scale, scale, -scale, scale, scale * 2, -scale * 2);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
-		
+
 		camera.transformToCamera();
-		
+
 		world.render(camera.getDirection());
 		player.render();
-		
+
 		camera.undoTransform();
 		GL11.glTranslatef(-80, -80, 0);
 		camera.rotateToCamera();
 		axes.render();
 	}
-	
+
 	public float[] getPlayerPosition(){
 		float[] pos = {player.getX(), player.getY(), player.getZ()};
 		return pos;
 	}
-	
+
 	public void alignPlayer(){
 		player.alignPosition();
 	}
-	
+
 	public void alignBoxes(){
 		world.alignBoxes();
 	}
-	
-	public void updateWallsInPlane(Camera.Direction direction){
-		world.updateWallsInPlane(direction, player.getGridX(), player.getGridY(), player.getGridZ());
+
+	public void computeObjectsInPlane(Camera.Direction direction){
+		world.computeObjectsInPlane(direction, player.getGridX(), player.getGridY(), player.getGridZ());
 	}
-	
+
 	public void createWalls(Camera.Direction direction){
-		
+
 	}
 }

@@ -20,6 +20,9 @@ public class World {
 	private ArrayList<Wall> xzWalls;
 	private ArrayList<Wall> xyWalls;
 	private ArrayList<Wall> yzWalls;
+	private ArrayList<SideBox> xyBoxes;
+	private ArrayList<SideBox> yzBoxes;
+	private ArrayList<TopBox> xzBoxes;
 	public World(Game game){
 		this.game = game;
 		loadWorld(4);
@@ -27,9 +30,11 @@ public class World {
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
 		xyWalls = new ArrayList<Wall>();
+		xyBoxes = new ArrayList<SideBox>();
+		yzBoxes = new ArrayList<SideBox>();
+		xzBoxes = new ArrayList<TopBox>();
 		boxes = new ArrayList<Box>();
 		boxes.add(new Box(2 * CUBE_SIZE, 1 * CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
-		//cubes[2][1][2] = new Box(2 * CUBE_SIZE, 1 * CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1);
 	}
 
 	private void loadWorld(int worldNumber){
@@ -79,7 +84,7 @@ public class World {
 	}
 
 	//xyz: player grid position
-	public void updateWallsInPlane(Camera.Direction direction, int x, int y, int z){
+	public void computeObjectsInPlane(Camera.Direction direction, int x, int y, int z){
 		if(direction == Camera.Direction.X){ // side
 			yzWalls = new ArrayList<Wall>();
 			for (int y2 = 0; y2 < cubes[x].length; y2++) {
@@ -87,6 +92,16 @@ public class World {
 					if(cubes[x][y2][z2] != null){
 						yzWalls.add(new Wall(z2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
+				}
+			}
+			for(Box b : boxes){
+				if(b.getX() / CUBE_SIZE == x)
+					yzWalls.add(b.getSideBox());
+			}
+			yzBoxes = new ArrayList<SideBox>();
+			for(Box b : boxes){
+				if(b.getX() / CUBE_SIZE == x){
+					yzBoxes.add(b.getSideBox());
 				}
 			}
 		}
@@ -104,7 +119,14 @@ public class World {
 				}
 			}
 			for(Box b : boxes){
-				xzWalls.add(b.getTopBox());
+				if(b.getY() / CUBE_SIZE == y)
+					xzWalls.add(b.getTopBox());
+			}
+			xzBoxes = new ArrayList<TopBox>();
+			for(Box b : boxes){
+				if(b.getY() / CUBE_SIZE == y){
+					xzBoxes.add(b.getTopBox());
+				}
 			}
 		}
 		else if(direction == Camera.Direction.Z){ // side
@@ -114,6 +136,17 @@ public class World {
 					if(cubes[x2][y2][z] != null){
 						xyWalls.add(new Wall(x2 * CUBE_SIZE, y2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
+				}
+			}
+			for(Box b : boxes){
+				if(b.getZ() / CUBE_SIZE == z){
+					xyWalls.add(b.getSideBox());
+				}
+			}
+			xyBoxes = new ArrayList<SideBox>();
+			for(Box b : boxes){
+				if(b.getZ() / CUBE_SIZE == z){
+					xyBoxes.add(b.getSideBox());
 				}
 			}
 		}
@@ -154,6 +187,8 @@ public class World {
 								cubes[i][j][j2].render(0);
 							else if(distanceFromPlayer > 0)
 								cubes[i][j][j2].render(distanceFromPlayer / 255);
+							for(Box b : boxes)
+								b.render(0);
 						}
 						else if(direction == Camera.Direction.Z){
 							float distanceFromPlayer = j2 * CUBE_SIZE - playerZ;
@@ -161,6 +196,8 @@ public class World {
 								cubes[i][j][j2].render(0);
 							else if(distanceFromPlayer > 0)
 								cubes[i][j][j2].render(distanceFromPlayer / 255);
+							for(Box b : boxes)
+								b.render(0);
 						}
 						else if(direction == Camera.Direction.Y){
 							float distanceFromPlayer = j * CUBE_SIZE - playerY;
@@ -193,14 +230,16 @@ public class World {
 		return yzWalls;
 	}
 
-	public ArrayList<TopBox> getXZBoxes(int playerGridY){
-		ArrayList<TopBox> xzBoxes = new ArrayList<TopBox>();
-		for(Box b : boxes){
-			if(b.getY() / CUBE_SIZE == playerGridY){
-				xzBoxes.add(b.getTopBox());
-			}
-		}
+	public ArrayList<TopBox> getXZBoxes(){
 		return xzBoxes;
+	}
+	
+	public ArrayList<SideBox> getYZBoxes(){
+		return yzBoxes;
+	}
+	
+	public ArrayList<SideBox> getXYBoxes(){
+		return xyBoxes;
 	}
 
 	public static int getSizeX(){ return worldSizeX; }

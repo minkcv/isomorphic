@@ -1,37 +1,34 @@
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
-
-public class SidePlayer {
-	private int x, y, width, height;
-	private int xVelocity, yVelocity;
-	private Rectangle bounding;
+public class SideBox extends Wall{
 	private Rectangle topRectangle;
 	private Rectangle topLeftRectangle;
 	private Rectangle topRightRectangle;
-	private Rectangle leftTallRectangle; // height and yVelocity tall (past feet)
-	private Rectangle rightTallRectangle;
-	private Rectangle leftBoxRect; // height tall
-	private Rectangle rightBoxRect;
+	private Rectangle leftRectangle;
+	private Rectangle rightRectangle;
 	private Rectangle bottomRectangle;
 	private Rectangle bottomLeftRectangle;
 	private Rectangle bottomRightRectangle;
 	private Rectangle belowPlayersFeetRectangle;
-
+	
 	private int xMoveSpeed = 1;
+	private int xVelocity, yVelocity;
 	private int jumpSpeed;
 	private int fallFactor; // lower value falls faster
-	private double fallingTime; // how long the player has been falling
+	private double fallingTime; // how long the box has been falling
 	private int maxFallSpeed;
 	private boolean touchingGround;
-	private boolean wReleased;
-	private final int normalFallFactor = 60; // can jump 3 cubes high
-	private final int highJumpFallFactor = 80; // can jump 5 cubes high
-
-	public SidePlayer(int x, int y, int width, int height){
+	private final int normalFallFactor = 60;
+	
+	private boolean pushLeft;
+	private boolean pushRight;
+	
+	private boolean zSide;
+	
+	public SideBox(int x, int y, int width, int height){
+		super(x, y, width, height);
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -39,21 +36,23 @@ public class SidePlayer {
 		jumpSpeed = 2;
 		maxFallSpeed = -4;
 		fallFactor = normalFallFactor;
+		updateRectangles();
 	}
-
-	public void update(ArrayList<Wall> walls, ArrayList<SideBox> boxes, int playerX, int playerY, boolean zSide){
-		x = playerX;
-		y = playerY;
+	
+	public void update(ArrayList<Wall> walls, int boxX, int boxY, boolean zSide){
+		x = boxX;
+		y = boxY;
+		this.zSide = zSide;
 		bounding = new Rectangle(x, y, width, height);
 		belowPlayersFeetRectangle = new Rectangle(x, y - 1, width, 1);
 
-		if(Keyboard.isKeyDown(Keyboard.KEY_A)){
+		if(pushLeft){
 			if(zSide)
 				xVelocity = -xMoveSpeed;
 			else
 				xVelocity = xMoveSpeed;
 		}
-		else if(Keyboard.isKeyDown(Keyboard.KEY_D)){
+		else if(pushRight){
 			if(zSide)
 				xVelocity = xMoveSpeed;
 			else
@@ -71,19 +70,7 @@ public class SidePlayer {
 			}
 		}
 
-		//jumping
-		if(Keyboard.isKeyDown(Keyboard.KEY_W)){
-			if(wReleased && touchingGround){
-				touchingGround = false;
-				fallingTime = 0;
-			}
-			wReleased = false;
-		}
-		else{
-			wReleased = true;
-		}
-
-		if(!wReleased && !touchingGround){
+		if(!touchingGround){
 			yVelocity += jumpSpeed;		
 		}
 
@@ -95,9 +82,11 @@ public class SidePlayer {
 				yVelocity = maxFallSpeed;
 			}
 		}
+		
+		pushLeft = false;
+		pushRight = false;
 
 		updateRectangles();
-		boxCollisions(boxes);
 		collisionDetection(walls);
 
 		x += xVelocity;
@@ -109,15 +98,13 @@ public class SidePlayer {
 		topRectangle = new Rectangle(x, y + (Math.abs(yVelocity) + height), width, Math.abs(yVelocity));
 		topLeftRectangle = new Rectangle(x - Math.abs(xVelocity), y + (Math.abs(yVelocity) - height), Math.abs(xVelocity), Math.abs(yVelocity));
 		topRightRectangle = new Rectangle(x + width, y + (Math.abs(yVelocity) + height), Math.abs(xVelocity), Math.abs(yVelocity));
-		leftTallRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
-		rightTallRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
-		leftBoxRect = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), height);
-		rightBoxRect = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), height);
+		leftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
+		rightRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
 		bottomLeftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), Math.abs(yVelocity));
 		bottomRightRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), Math.abs(yVelocity));
 		bottomRectangle = new Rectangle(x, y - Math.abs(yVelocity), width, Math.abs(yVelocity));
 	}
-
+	
 	private void collisionDetection(ArrayList<Wall> walls){
 		boolean rightCollides = false;
 		boolean leftCollides = false;
@@ -130,10 +117,10 @@ public class SidePlayer {
 		for(Wall w : walls){
 
 			//horizontal
-			if(leftTallRectangle.intersects(w.getBounding())){
+			if(leftRectangle.intersects(w.getBounding())){
 				rightCollides = true;
 			}
-			if(rightTallRectangle.intersects(w.getBounding())){
+			if(rightRectangle.intersects(w.getBounding())){
 				leftCollides = true;
 			}
 
@@ -204,22 +191,14 @@ public class SidePlayer {
 		}
 	}
 	
-	private void boxCollisions(ArrayList<SideBox> boxes){
-		for(SideBox b : boxes){
-			if(leftBoxRect.intersects(b.getBounding())){
-				if(b.isZSide())
-					b.pushRight();
-				else
-					b.pushLeft();
-			}
-			else if(rightBoxRect.intersects(b.getBounding())){
-				if(b.isZSide())
-					b.pushLeft();
-				else
-					b.pushRight();
-			}
-		}
-	}
 	public int getX(){ return x; }
 	public int getY(){ return y; }
+	
+	public Rectangle getLeftRect(){ return leftRectangle; }
+	public Rectangle getRightRect(){ return rightRectangle; }
+	
+	public void pushLeft(){ pushLeft = true; }
+	public void pushRight(){ pushRight = true; }
+	
+	public boolean isZSide(){ return zSide; }
 }

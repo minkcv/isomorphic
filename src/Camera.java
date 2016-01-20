@@ -11,6 +11,7 @@ public class Camera {
 	private float xRotation, yRotation;
 	private float newXRotation, newYRotation;
 	private boolean downReleased, leftReleased, upReleased, rightReleased;
+	private boolean rotating;
 	public static enum Direction {
 		X, Y, Z, ISO, FREE
 	}
@@ -70,7 +71,7 @@ public class Camera {
 		else{
 			rightReleased = true;
 		}
-		
+
 		if(Mouse.isButtonDown(0)){
 			direction = Direction.FREE;
 		}
@@ -81,7 +82,7 @@ public class Camera {
 			xRotation = 45; // non smooth rotation
 			yRotation = 45;
 		}
-		
+
 		if(direction == Direction.FREE){
 			xRotation -= Mouse.getDX();
 			yRotation += Mouse.getDY();
@@ -98,12 +99,13 @@ public class Camera {
 			if(yRotation < newYRotation)
 				yRotation += rotateSpeed;
 		}
-		
+
 		if(direction != previousDirection){
 			game.alignPlayer();
-			game.updateWallsInPlane(direction);
 			game.alignBoxes();
+			game.computeObjectsInPlane(direction);
 		}
+		rotating = (xRotation != newXRotation) || (yRotation != newYRotation);
 		previousDirection = direction;
 	}
 
@@ -112,13 +114,13 @@ public class Camera {
 		GL11.glRotatef(-xRotation, 0, 1, 0);
 		GL11.glTranslatef(-cameraX, -cameraY, -cameraZ);
 	}
-	
+
 	public void undoTransform(){
 		GL11.glTranslatef(cameraX, cameraY, cameraZ);
 		GL11.glRotatef(xRotation, 0, 1, 0);
 		GL11.glRotatef(yRotation, 1, 0, 0);
 	}
-	
+
 	public void rotateToCamera(){
 		GL11.glRotatef(-yRotation, 1, 0, 0);
 		GL11.glRotatef(-xRotation, 0, 1, 0);
@@ -133,4 +135,6 @@ public class Camera {
 	public Direction getDirection(){
 		return direction;
 	}
+	public boolean isRotating(){ return rotating; }
+
 }

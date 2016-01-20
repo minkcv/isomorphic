@@ -3,12 +3,14 @@ import org.lwjgl.opengl.GL11;
 
 public class Box extends Cube{
 	private TopBox topBox;
+	private SideBox sideBox;
 	public Box(float x, float y, float z, 
 			float width, float height, float depth,
 			float r, float g, float b){
 		super(x, y, z, width, height, depth, r, g, b);
 		
 		topBox = new TopBox((int)x, (int)z, (int)width, (int)height);
+		sideBox = new SideBox((int)x, (int)y, (int)width, (int)height);
 	}
 
 	public void update(World world, Camera.Direction direction){
@@ -16,6 +18,16 @@ public class Box extends Cube{
 			topBox.update(world.getXZWalls(), (int)x, (int)z);
 			x = topBox.getX();
 			z = topBox.getY();
+		}
+		else if(direction == Camera.Direction.X){
+			sideBox.update(world.getYZWalls(), (int)z, (int)y, false);
+			z = sideBox.getX();
+			y = sideBox.getY();
+		}
+		else if(direction == Camera.Direction.Z){
+			sideBox.update(world.getXYWalls(), (int)x, (int)y, true);
+			x = sideBox.getX();
+			y = sideBox.getY();
 		}
 	}
 	
@@ -97,6 +109,7 @@ public class Box extends Cube{
 	}
 	
 	public TopBox getTopBox(){ return topBox; }
+	public SideBox getSideBox(){ return sideBox; }
 	public float getX(){ return x; }
 	public float getY(){ return y; }
 	public float getZ(){ return z; }
