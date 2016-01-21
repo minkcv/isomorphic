@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 public class World {
 	private Game game;
 	private Cube[][][] cubes;
-	private ArrayList<Box> boxes;
+	private ArrayList<ActiveObject> activeObjects;
 	private Light light;
 	public static final int CUBE_SIZE = 10;
 	private static int worldSizeX;
@@ -33,8 +33,9 @@ public class World {
 		xyBoxes = new ArrayList<SideBox>();
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
-		boxes = new ArrayList<Box>();
-		boxes.add(new Box(2 * CUBE_SIZE, 1 * CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
+		activeObjects = new ArrayList<ActiveObject>();
+		activeObjects.add(new Box(2 * CUBE_SIZE, CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
+		activeObjects.add(new SavePoint(3 * CUBE_SIZE, CUBE_SIZE, 3 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 	}
 
 	private void loadWorld(int worldNumber){
@@ -67,19 +68,19 @@ public class World {
 		for (int i = 0; i < cubes.length; i++) {
 			for (int j = 0; j < cubes[i].length; j++) {
 				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
-					if(cubes[i][j][j2] != null)
-						cubes[i][j][j2].update(this, direction);
+					//if(cubes[i][j][j2] != null)
+					//cubes[i][j][j2].update(this, direction);
 				}
 			}
 		}
-		for(Box b : boxes){
+		for(ActiveObject b : activeObjects){
 			b.update(this, direction);
 		}
 	}
 
-	public void alignBoxes(){
-		for(Box b : boxes){
-			b.alignPosition();
+	public void alignActiveObjects(){
+		for(ActiveObject a : activeObjects){
+			a.alignPosition();
 		}
 	}
 
@@ -94,14 +95,21 @@ public class World {
 					}
 				}
 			}
-			for(Box b : boxes){
-				if(b.getX() / CUBE_SIZE == x)
-					yzWalls.add(b.getSideBox());
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Box){
+					Box b = (Box)a;
+					if(b.getX() / CUBE_SIZE == x){
+						yzWalls.add(b.getSideBox());
+					}
+				}
 			}
 			yzBoxes = new ArrayList<SideBox>();
-			for(Box b : boxes){
-				if(b.getX() / CUBE_SIZE == x){
-					yzBoxes.add(b.getSideBox());
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Box){
+					Box b = (Box)a;
+					if(b.getX() / CUBE_SIZE == x){
+						yzBoxes.add(b.getSideBox());
+					}
 				}
 			}
 		}
@@ -118,14 +126,21 @@ public class World {
 					}
 				}
 			}
-			for(Box b : boxes){
-				if(b.getY() / CUBE_SIZE == y)
-					xzWalls.add(b.getTopBox());
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Box){
+					Box b = (Box)a;
+					if(b.getY() / CUBE_SIZE == y){
+						xzWalls.add(b.getTopBox());
+					}
+				}
 			}
 			xzBoxes = new ArrayList<TopBox>();
-			for(Box b : boxes){
-				if(b.getY() / CUBE_SIZE == y){
-					xzBoxes.add(b.getTopBox());
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Box){
+					Box b = (Box)a;
+					if(b.getY() / CUBE_SIZE == y){
+						xzBoxes.add(b.getTopBox());
+					}
 				}
 			}
 		}
@@ -138,15 +153,21 @@ public class World {
 					}
 				}
 			}
-			for(Box b : boxes){
-				if(b.getZ() / CUBE_SIZE == z){
-					xyWalls.add(b.getSideBox());
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Box){
+					Box b = (Box)a;
+					if(b.getZ() / CUBE_SIZE == z){
+						xyWalls.add(b.getSideBox());
+					}
 				}
 			}
 			xyBoxes = new ArrayList<SideBox>();
-			for(Box b : boxes){
-				if(b.getZ() / CUBE_SIZE == z){
-					xyBoxes.add(b.getSideBox());
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Box){
+					Box b = (Box)a;
+					if(b.getZ() / CUBE_SIZE == z){
+						xyBoxes.add(b.getSideBox());
+					}
 				}
 			}
 		}
@@ -177,7 +198,6 @@ public class World {
 		float playerY = game.getPlayerPosition()[1];
 		float playerZ = game.getPlayerPosition()[2];
 		light.render();
-		renderBoxes(direction);
 		for (int i = 0; i < cubes.length; i++) {
 			for (int j = 0; j < cubes[i].length; j++) {
 				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
@@ -213,39 +233,40 @@ public class World {
 				}
 			}
 		}
+		renderActiveObjects(direction);
 	}
 
-	private void renderBoxes(Camera.Direction direction){
+	private void renderActiveObjects(Camera.Direction direction){
 		float playerX = game.getPlayerPosition()[0];
 		float playerY = game.getPlayerPosition()[1];
 		float playerZ = game.getPlayerPosition()[2];
-		for(Box b : boxes){
+		for(ActiveObject a : activeObjects){
 			if(direction == Camera.Direction.X){
-				float distanceFromPlayer = b.getX() - playerX;
+				float distanceFromPlayer = a.getX() - playerX;
 				if(distanceFromPlayer == 0)
-					b.render(0);
+					a.render(0);
 				else if(distanceFromPlayer > 0)
-					b.render(distanceFromPlayer / 255);
+					a.render(distanceFromPlayer / 255);
 			}
 			else if(direction == Camera.Direction.Z){
-				float distanceFromPlayer = b.getZ() - playerZ;
+				float distanceFromPlayer = a.getZ() - playerZ;
 				if(distanceFromPlayer == 0)
-					b.render(0);
+					a.render(0);
 				else if(distanceFromPlayer > 0)
-					b.render(distanceFromPlayer / 255);
+					a.render(distanceFromPlayer / 255);
 			}
 			else if(direction == Camera.Direction.Y){
-				float distanceFromPlayer = b.getY() - playerY;
+				float distanceFromPlayer = a.getY() - playerY;
 				if(distanceFromPlayer == 0 || distanceFromPlayer == CUBE_SIZE)
-					b.render(0);
+					a.render(0);
 				else if(distanceFromPlayer < 0)
-					b.render(-distanceFromPlayer / 255);
+					a.render(-distanceFromPlayer / 255);
 			}
 			else if(direction == Camera.Direction.ISO){
-				b.render(0);
+				a.render(0);
 			}
 			else if(direction == Camera.Direction.FREE){
-				b.render(0);
+				a.render(0);
 			}
 		}
 	}
@@ -263,11 +284,9 @@ public class World {
 	public ArrayList<TopBox> getXZBoxes(){
 		return xzBoxes;
 	}
-
 	public ArrayList<SideBox> getYZBoxes(){
 		return yzBoxes;
 	}
-
 	public ArrayList<SideBox> getXYBoxes(){
 		return xyBoxes;
 	}
