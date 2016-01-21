@@ -53,8 +53,8 @@ public class Game {
 
 		camera.transformToCamera();
 
-		world.render(camera.getDirection());
 		player.render();
+		world.render(camera.getDirection());
 
 		camera.undoTransform();
 		GL11.glTranslatef(15 - scale, 15 - scale, 0);

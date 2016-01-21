@@ -76,6 +76,7 @@ public class Player {
 	}
 	
 	public void render(){
+		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glTranslatef(x, y, z);
 		GL11.glBegin(GL11.GL_QUADS);
 		{
