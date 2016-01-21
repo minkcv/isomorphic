@@ -206,13 +206,13 @@ public class SidePlayer {
 	
 	private void boxCollisions(ArrayList<SideBox> boxes){
 		for(SideBox b : boxes){
-			if(leftBoxRect.intersects(b.getBounding())){
+			if(leftBoxRect.intersects(b.getRightRect())){
 				if(b.isZSide())
 					b.pushRight();
 				else
 					b.pushLeft();
 			}
-			else if(rightBoxRect.intersects(b.getBounding())){
+			else if(rightBoxRect.intersects(b.getLeftRect())){
 				if(b.isZSide())
 					b.pushLeft();
 				else

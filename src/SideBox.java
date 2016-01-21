@@ -96,12 +96,12 @@ public class SideBox extends Wall{
 	private void updateRectangles(){
 		// AWT Rectangles have different origin specification than opengl
 		topRectangle = new Rectangle(x, y + (Math.abs(yVelocity) + height), width, Math.abs(yVelocity));
-		topLeftRectangle = new Rectangle(x - Math.abs(xVelocity), y + (Math.abs(yVelocity) - height), Math.abs(xVelocity), Math.abs(yVelocity));
-		topRightRectangle = new Rectangle(x + width, y + (Math.abs(yVelocity) + height), Math.abs(xVelocity), Math.abs(yVelocity));
-		leftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
-		rightRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
-		bottomLeftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), Math.abs(yVelocity));
-		bottomRightRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), Math.abs(yVelocity));
+		topLeftRectangle = new Rectangle(x - xMoveSpeed, y + (Math.abs(yVelocity) - height), xMoveSpeed, Math.abs(yVelocity));
+		topRightRectangle = new Rectangle(x + width, y + (Math.abs(yVelocity) + height), xMoveSpeed, Math.abs(yVelocity));
+		leftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), xMoveSpeed, height + Math.abs(yVelocity));
+		rightRectangle = new Rectangle(x - xMoveSpeed, y - Math.abs(yVelocity), xMoveSpeed, height + Math.abs(yVelocity));
+		bottomLeftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), xMoveSpeed, Math.abs(yVelocity));
+		bottomRightRectangle = new Rectangle(x - xMoveSpeed, y - Math.abs(yVelocity), xMoveSpeed, Math.abs(yVelocity));
 		bottomRectangle = new Rectangle(x, y - Math.abs(yVelocity), width, Math.abs(yVelocity));
 	}
 	
