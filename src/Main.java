@@ -6,6 +6,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.PixelFormat;
 
 
 public class Main {
@@ -22,6 +23,8 @@ public class Main {
 	private boolean onMenu;
 	private Game game;
 	private Menu menu;
+	
+	private PixelFormat renderSettings;
 
 	public static void main(String[] args){
 		new Main();
@@ -32,7 +35,8 @@ public class Main {
 			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
 			Display.setTitle("Isomorphic");
 			Display.setLocation(10, 10);
-			Display.create();
+			renderSettings = new PixelFormat(8, 8, 0, 8); // alpha bits, depth bits, stencil bits, samples
+			Display.create(renderSettings);
 		}
 		catch(LWJGLException e){
 			e.printStackTrace();
@@ -54,23 +58,14 @@ public class Main {
 
 			Display.update();
 			Display.sync(60);
-
 		}
 		Display.destroy();
 	}
 
 	private void initOpenGL(){
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-
 		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
-
-		// enable alpha blending
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
 		GL11.glViewport(0,0,WIDTH,HEIGHT);
-//		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 
 	private void initialize(){
@@ -118,7 +113,7 @@ public class Main {
 
 	private void render(){
 		// Clear the screen and depth buffer
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);	
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		if(onMenu){
 			menu.render();

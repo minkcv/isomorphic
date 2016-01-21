@@ -44,7 +44,7 @@ public class Game {
 	}
 
 	public void render(){
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);  
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(-scale, scale, -scale, scale, scale * 2, -scale * 2);
