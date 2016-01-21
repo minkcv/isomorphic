@@ -1,6 +1,5 @@
 import org.lwjgl.opengl.GL11;
 
-
 public class Player {
 	private Game game;
 	private float x, y, z;

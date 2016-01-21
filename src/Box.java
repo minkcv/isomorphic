@@ -1,7 +1,7 @@
 import org.lwjgl.opengl.GL11;
 
 
-public class Box extends Cube{
+public class Box extends Cube implements ActiveObject{
 	private TopBox topBox;
 	private SideBox sideBox;
 	public Box(float x, float y, float z, 
@@ -13,6 +13,7 @@ public class Box extends Cube{
 		sideBox = new SideBox((int)x, (int)y, (int)width, (int)height);
 	}
 
+	@Override
 	public void update(World world, Camera.Direction direction){
 		if(direction == Camera.Direction.Y){
 			topBox.update(world.getXZWalls(), (int)x, (int)z);
@@ -31,6 +32,7 @@ public class Box extends Cube{
 		}
 	}
 	
+	@Override
 	public void alignPosition(){
 		if(x % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
 			x += World.CUBE_SIZE - (x % World.CUBE_SIZE);
@@ -54,6 +56,7 @@ public class Box extends Cube{
 		}
 	}
 
+	@Override
 	public void render(float shade){
 		if(!culled){
 			GL11.glTranslatef(x, y, z);

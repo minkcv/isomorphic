@@ -1,6 +1,5 @@
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import org.lwjgl.input.Keyboard;
 
 
 public class TopBox extends Wall{

@@ -57,7 +57,7 @@ public class Game {
 		player.render();
 
 		camera.undoTransform();
-		GL11.glTranslatef(-80, -80, 0);
+		GL11.glTranslatef(15 - scale, 15 - scale, 0);
 		camera.rotateToCamera();
 		axes.render();
 	}
@@ -72,7 +72,7 @@ public class Game {
 	}
 
 	public void alignBoxes(){
-		world.alignBoxes();
+		world.alignActiveObjects();
 	}
 
 	public void computeObjectsInPlane(Camera.Direction direction){

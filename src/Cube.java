@@ -23,10 +23,6 @@ public class Cube {
 		culled = false;
 	}
 
-	public void update(World world, Camera.Direction direction){
-
-	}
-
 	public void render(float shade){
 		if(!culled){
 			GL11.glTranslatef(x, y, z);
@@ -82,10 +78,4 @@ public class Cube {
 	}
 
 	public void setCulled(boolean c){ culled = c; }
-
-	public void setPosition(float x, float y, float z){
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
 }

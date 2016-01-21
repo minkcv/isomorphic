@@ -1,7 +1,5 @@
 import java.awt.Rectangle;
 
-import org.lwjgl.opengl.GL11;
-
 
 public class Wall {
 	protected int x, y, width, height;
