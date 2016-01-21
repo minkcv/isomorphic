@@ -76,7 +76,7 @@ public class World {
 			b.update(this, direction);
 		}
 	}
-	
+
 	public void alignBoxes(){
 		for(Box b : boxes){
 			b.alignPosition();
@@ -177,6 +177,7 @@ public class World {
 		float playerY = game.getPlayerPosition()[1];
 		float playerZ = game.getPlayerPosition()[2];
 		light.render();
+		renderBoxes(direction);
 		for (int i = 0; i < cubes.length; i++) {
 			for (int j = 0; j < cubes[i].length; j++) {
 				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
@@ -187,8 +188,6 @@ public class World {
 								cubes[i][j][j2].render(0);
 							else if(distanceFromPlayer > 0)
 								cubes[i][j][j2].render(distanceFromPlayer / 255);
-							for(Box b : boxes)
-								b.render(0);
 						}
 						else if(direction == Camera.Direction.Z){
 							float distanceFromPlayer = j2 * CUBE_SIZE - playerZ;
@@ -196,8 +195,6 @@ public class World {
 								cubes[i][j][j2].render(0);
 							else if(distanceFromPlayer > 0)
 								cubes[i][j][j2].render(distanceFromPlayer / 255);
-							for(Box b : boxes)
-								b.render(0);
 						}
 						else if(direction == Camera.Direction.Y){
 							float distanceFromPlayer = j * CUBE_SIZE - playerY;
@@ -205,8 +202,6 @@ public class World {
 								cubes[i][j][j2].render(0);
 							else if(distanceFromPlayer < 0)
 								cubes[i][j][j2].render(-distanceFromPlayer / 255);
-							for(Box b : boxes)
-								b.render(0);
 						}
 						else if(direction == Camera.Direction.ISO){
 							cubes[i][j][j2].render(0);
@@ -216,6 +211,41 @@ public class World {
 						}
 					}
 				}
+			}
+		}
+	}
+
+	private void renderBoxes(Camera.Direction direction){
+		float playerX = game.getPlayerPosition()[0];
+		float playerY = game.getPlayerPosition()[1];
+		float playerZ = game.getPlayerPosition()[2];
+		for(Box b : boxes){
+			if(direction == Camera.Direction.X){
+				float distanceFromPlayer = b.getX() - playerX;
+				if(distanceFromPlayer == 0)
+					b.render(0);
+				else if(distanceFromPlayer > 0)
+					b.render(distanceFromPlayer / 255);
+			}
+			else if(direction == Camera.Direction.Z){
+				float distanceFromPlayer = b.getZ() - playerZ;
+				if(distanceFromPlayer == 0)
+					b.render(0);
+				else if(distanceFromPlayer > 0)
+					b.render(distanceFromPlayer / 255);
+			}
+			else if(direction == Camera.Direction.Y){
+				float distanceFromPlayer = b.getY() - playerY;
+				if(distanceFromPlayer == 0 || distanceFromPlayer == CUBE_SIZE)
+					b.render(0);
+				else if(distanceFromPlayer < 0)
+					b.render(-distanceFromPlayer / 255);
+			}
+			else if(direction == Camera.Direction.ISO){
+				b.render(0);
+			}
+			else if(direction == Camera.Direction.FREE){
+				b.render(0);
 			}
 		}
 	}
@@ -233,11 +263,11 @@ public class World {
 	public ArrayList<TopBox> getXZBoxes(){
 		return xzBoxes;
 	}
-	
+
 	public ArrayList<SideBox> getYZBoxes(){
 		return yzBoxes;
 	}
-	
+
 	public ArrayList<SideBox> getXYBoxes(){
 		return xyBoxes;
 	}
