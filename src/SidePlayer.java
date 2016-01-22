@@ -24,7 +24,7 @@ public class SidePlayer {
 	private int fallFactor; // lower value falls faster
 	private double fallingTime; // how long the player has been falling
 	private int maxFallSpeed;
-	private boolean touchingGround;
+	private boolean onGround;
 	private boolean wReleased;
 	private final int normalFallFactor = 60; // can jump 3 cubes high
 	private final int highJumpFallFactor = 80; // can jump 5 cubes high
@@ -61,18 +61,18 @@ public class SidePlayer {
 			xVelocity = 0;
 		}
 
-		touchingGround = false;
+		onGround = false;
 		for(Wall w : walls){
 			if(belowPlayersFeetRectangle.intersects(w.getBounding())){
-				touchingGround = true;
+				onGround = true;
 				yVelocity = 0;
 			}
 		}
 
 		//jumping
 		if(Keyboard.isKeyDown(Keyboard.KEY_W)){
-			if(wReleased && touchingGround){
-				touchingGround = false;
+			if(wReleased && onGround){
+				onGround = false;
 				fallingTime = 0;
 			}
 			wReleased = false;
@@ -81,11 +81,11 @@ public class SidePlayer {
 			wReleased = true;
 		}
 
-		if(!wReleased && !touchingGround){
+		if(!wReleased && !onGround){
 			yVelocity += jumpSpeed;		
 		}
 
-		if(!touchingGround){
+		if(!onGround){
 			fallingTime += 15;
 			yVelocity -= (fallingTime / fallFactor);
 
@@ -185,7 +185,7 @@ public class SidePlayer {
 		}
 
 		//vertical stopping
-		if(touchingGround){
+		if(onGround){
 			if(yVelocity < 0){
 				yVelocity = 0;
 			}
@@ -220,4 +220,6 @@ public class SidePlayer {
 	}
 	public int getX(){ return x; }
 	public int getY(){ return y; }
+	
+	public boolean onGround(){ return onGround; }
 }

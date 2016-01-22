@@ -27,65 +27,67 @@ public class Camera {
 	}
 
 	public void update(){
-		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
-			if(downReleased && direction != Direction.ISO){
+		if(game.playerOnGround()){
+			if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
+				if(downReleased && direction != Direction.ISO){
+					direction = Direction.ISO;
+					newXRotation = 45;
+					newYRotation = 45;
+				}
+				downReleased = false;
+			}
+			else{
+				downReleased = true;
+			}
+			if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
+				if(leftReleased && direction != Direction.X){
+					direction = Direction.X;
+					newXRotation = 90;
+					newYRotation = 0;
+				}
+				leftReleased = false;
+			}
+			else{
+				leftReleased = true;
+			}
+			if(Keyboard.isKeyDown(Keyboard.KEY_UP)){
+				if(upReleased && direction != Direction.Y){
+					direction = Direction.Y;
+					newXRotation = 0;
+					newYRotation = 90;
+				}
+				upReleased = false;
+			}
+			else{
+				upReleased = true;
+			}
+			if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)){
+				if(rightReleased && direction != Direction.Z){
+					direction = Direction.Z;
+					newXRotation = 0;
+					newYRotation = 0;
+				}
+				rightReleased = false;
+			}
+			else{
+				rightReleased = true;
+			}
+
+			if(Mouse.isButtonDown(0)){
+				direction = Direction.FREE;
+			}
+			else if(direction == Direction.FREE){
 				direction = Direction.ISO;
 				newXRotation = 45;
 				newYRotation = 45;
+				xRotation = 45; // non smooth rotation
+				yRotation = 45;
 			}
-			downReleased = false;
-		}
-		else{
-			downReleased = true;
-		}
-		if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
-			if(leftReleased && direction != Direction.X){
-				direction = Direction.X;
-				newXRotation = 90;
-				newYRotation = 0;
-			}
-			leftReleased = false;
-		}
-		else{
-			leftReleased = true;
-		}
-		if(Keyboard.isKeyDown(Keyboard.KEY_UP)){
-			if(upReleased && direction != Direction.Y){
-				direction = Direction.Y;
-				newXRotation = 0;
-				newYRotation = 90;
-			}
-			upReleased = false;
-		}
-		else{
-			upReleased = true;
-		}
-		if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)){
-			if(rightReleased && direction != Direction.Z){
-				direction = Direction.Z;
-				newXRotation = 0;
-				newYRotation = 0;
-			}
-			rightReleased = false;
-		}
-		else{
-			rightReleased = true;
-		}
-
-		if(Mouse.isButtonDown(0)){
-			direction = Direction.FREE;
-		}
-		else if(direction == Direction.FREE){
-			direction = Direction.ISO;
-			newXRotation = 45;
-			newYRotation = 45;
-			xRotation = 45; // non smooth rotation
-			yRotation = 45;
 		}
 
 		if(direction == Direction.FREE){
 			xRotation -= Mouse.getDX();
-			yRotation += Mouse.getDY();
+			yRotation -= Mouse.getDY();
 		}
 		else{
 			Mouse.getDX(); // return value not used, intentional side effect

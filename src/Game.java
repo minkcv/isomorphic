@@ -93,6 +93,7 @@ public class Game {
 				saveDataFile.createNewFile();
 			}
 			String saveData = saveID + " " + worldID;
+			System.out.println("Saved game, world: " + worldID + " save: " + saveID);
 			saveDataOut.write(saveData.getBytes());
 			saveDataOut.flush();
 			saveDataOut.close();
@@ -151,4 +152,5 @@ public class Game {
 	public void createWalls(Camera.Direction direction){
 
 	}
+	public boolean playerOnGround(){ return player.onGround(); }
 }

@@ -8,6 +8,7 @@ public class Player {
 	private TopPlayer topPlayer;
 	private SidePlayer sidePlayer;
 	private boolean eReleased;
+	private boolean onGround;
 	public Player(Game game, float x, float y, float z){
 		this.game = game;
 		this.x = x;
@@ -26,6 +27,7 @@ public class Player {
 			sidePlayer.update(world.getYZWalls(), world.getYZBoxes(), (int)z, (int)y, false);
 			z = sidePlayer.getX();
 			y = sidePlayer.getY();
+			onGround = sidePlayer.onGround();
 		}
 		else if(direction == Camera.Direction.Y){
 			topPlayer.update(world.getXZWalls(), world.getXZBoxes(), (int)x, (int)z);
@@ -36,6 +38,7 @@ public class Player {
 			sidePlayer.update(world.getXYWalls(), world.getXYBoxes(), (int)x, (int)y, true);
 			x = sidePlayer.getX();
 			y = sidePlayer.getY();
+			onGround = sidePlayer.onGround();
 		}
 		
 		boolean saved = false;
@@ -146,4 +149,6 @@ public class Player {
 	public int getGridX(){ return (int)x / World.CUBE_SIZE; }
 	public int getGridY(){ return (int)y / World.CUBE_SIZE; }
 	public int getGridZ(){ return (int)z / World.CUBE_SIZE; }
+	
+	public boolean onGround(){ return onGround; }
 }
