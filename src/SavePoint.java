@@ -101,9 +101,9 @@ public class SavePoint implements ActiveObject{
 		{
 			//GL11.glNormal3f(0, 0, 1);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(width, height, depth + 1);
+			GL11.glVertex3f(width + 1, height, depth + 1);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(0, height, depth + 1);
+			GL11.glVertex3f(-1, height, depth + 1);
 			GL11.glColor4f(1, 1, 1, 1);
 			GL11.glVertex3f(0, 0, depth);
 			GL11.glColor4f(1, 1, 1, 1);
@@ -111,13 +111,13 @@ public class SavePoint implements ActiveObject{
 
 			//GL11.glNormal3f(1, 0, 0);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(width + 1, height, depth);
+			GL11.glVertex3f(width + 1, height, depth + 1);
 			GL11.glColor4f(1, 1, 1, 1);
 			GL11.glVertex3f(width, 0, depth);
 			GL11.glColor4f(1, 1, 1, 1);
 			GL11.glVertex3f(width, 0, 0);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(width + 1, height, 0);
+			GL11.glVertex3f(width + 1, height, -1);
 
 			// front faces (to isometric view) drawn last so transparency works better
 			GL11.glColor4f(1, 1, 1, 1);
@@ -125,16 +125,16 @@ public class SavePoint implements ActiveObject{
 			GL11.glColor4f(1, 1, 1, 1);
 			GL11.glVertex3f(0, 0, depth);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(-1, height, depth);
+			GL11.glVertex3f(-1, height, depth + 1);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(-1, height, 0);
+			GL11.glVertex3f(-1, height, -1);
 
 			GL11.glColor4f(1, 1, 1, 1);
 			GL11.glVertex3f(0, 0, 0);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(0, height, -1);
+			GL11.glVertex3f(-1, height, -1);
 			GL11.glColor4f(1, 1, 1, 0);
-			GL11.glVertex3f(width, height, -1);
+			GL11.glVertex3f(width + 1, height, -1);
 			GL11.glColor4f(1, 1, 1, 1);
 			GL11.glVertex3f(width, 0, 0);
 		}
