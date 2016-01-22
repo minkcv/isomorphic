@@ -1,3 +1,4 @@
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 public class Player {
@@ -6,6 +7,7 @@ public class Player {
 	private float width, depth, height;
 	private TopPlayer topPlayer;
 	private SidePlayer sidePlayer;
+	private boolean eReleased;
 	public Player(Game game, float x, float y, float z){
 		this.game = game;
 		this.x = x;
@@ -34,6 +36,17 @@ public class Player {
 			sidePlayer.update(world.getXYWalls(), world.getXYBoxes(), (int)x, (int)y, true);
 			x = sidePlayer.getX();
 			y = sidePlayer.getY();
+		}
+		
+		boolean saved = false;
+		if(Keyboard.isKeyDown(Keyboard.KEY_E)){
+			if(eReleased){
+				saved = game.tryToSave(getGridX(), getGridY(), getGridZ());
+			}
+			eReleased = false;
+		}
+		else{
+			eReleased = true;
 		}
 		
 		// keep player in world bounds

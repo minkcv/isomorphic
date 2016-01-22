@@ -1,3 +1,8 @@
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Scanner;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -12,12 +17,18 @@ public class Game {
 	private float minZoom = 5;
 	private float maxZoom = 20;
 	private Axes3D axes;
-	public Game(Main main){
+	public Game(Main main, boolean loadSave){
 		this.main = main;
 		camera = new Camera(this);
-		world = new World(this);
-		player = new Player(this, 0, 10, 0);
 		axes = new Axes3D(10);
+		world = new World(this);
+		if(loadSave){
+			loadGame();
+		}
+		else{
+			player = new Player(this, 0, 10, 0);
+			world.loadWorld(4);			
+		}
 	}
 
 	public void update(int delta){
@@ -60,6 +71,64 @@ public class Game {
 		GL11.glTranslatef(15 - scale, 15 - scale, 0);
 		camera.rotateToCamera();
 		axes.render();
+	}
+
+	public boolean tryToSave(int playerGridX, int playerGridY, int playerGridZ){
+		int saveID = world.playerOnSave(playerGridX, playerGridY, playerGridZ);
+		if(saveID > 0){
+			saveGame(saveID, world.getWorldID());
+			return true;
+		}
+		return false;
+	}
+
+	private void saveGame(int saveID, int worldID){
+		File workingDir = Util.getWorkingDirectory();
+		try{
+			if(! workingDir.exists())
+				workingDir.mkdir();
+			File saveDataFile = new File(Util.getWorkingDirectory().getAbsolutePath() + "/savedata.dat");
+			FileOutputStream saveDataOut = new FileOutputStream(saveDataFile);
+			if(! saveDataFile.exists()){
+				saveDataFile.createNewFile();
+			}
+			String saveData = saveID + " " + worldID;
+			saveDataOut.write(saveData.getBytes());
+			saveDataOut.flush();
+			saveDataOut.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	private void loadGame(){
+		File workingDir = Util.getWorkingDirectory();
+		try{
+			if(! workingDir.exists())
+				workingDir.mkdir();
+			File saveDataFile = new File(Util.getWorkingDirectory().getAbsolutePath() + "/savedata.dat");
+			if(! saveDataFile.exists()){
+				System.out.println("No existing save data");
+			}
+			else {
+				Scanner saveDataScanner = new Scanner(saveDataFile);
+				try{
+					int saveID = Integer.parseInt(saveDataScanner.next());
+					int worldID = Integer.parseInt(saveDataScanner.next());
+					world.loadWorld(worldID);
+					int[] position = world.getPositionOfSave(saveID);
+					player = new Player(this, position[0] * World.CUBE_SIZE, position[1] * World.CUBE_SIZE, position[2] * World.CUBE_SIZE);
+					System.out.println("Loaded save data, world: " + worldID + " save: " + saveID);
+				}catch(NumberFormatException e){
+					saveDataScanner.close();
+					saveDataFile.delete();
+				}
+				saveDataScanner.close();
+			}
+		}
+		catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	public float[] getPlayerPosition(){

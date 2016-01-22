@@ -7,21 +7,35 @@ import org.newdawn.slick.Color;
 public class Menu {
 	private Main main;
 	private boolean enterReleased;
-	public Menu(Main main){
+	private boolean saveExists;
+	private boolean gameInProgress = false;;
+	public Menu(Main main, boolean saveExists){
 		this.main = main;
+		this.saveExists = saveExists;
 	}
 
 	public void update(){
 		if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)){
-			if(enterReleased)
-				main.setOnMenu(false);
+			if(enterReleased){
+				if(gameInProgress){
+					main.setOnMenu(false);
+				}
+				else {
+					if(saveExists){
+						main.startExistingGame();
+						gameInProgress = true;
+					}
+					else{
+						main.startNewGame();
+						gameInProgress = true;
+					}
+				}
+			}
 			enterReleased = false;
 		}
 		else{
 			enterReleased = true;
 		}
-
-
 	}
 
 	public void render(){
@@ -42,4 +56,6 @@ public class Menu {
 		GameFonts.courierFont20pt.drawString(20, 40, "Arrows to rotate the world", Color.white);
 		GameFonts.courierFont20pt.drawString(20, 60, "", Color.white);
 	}
+	
+	public boolean isGameInProgress(){ return gameInProgress; }
 }

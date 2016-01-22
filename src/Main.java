@@ -1,4 +1,6 @@
 
+import java.io.File;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
@@ -23,7 +25,7 @@ public class Main {
 	private boolean onMenu;
 	private Game game;
 	private Menu menu;
-	
+
 	private PixelFormat renderSettings;
 
 	public static void main(String[] args){
@@ -70,8 +72,18 @@ public class Main {
 
 	private void initialize(){
 		onMenu = true;
-		menu = new Menu(this);
-		game = new Game(this);
+		boolean saveExists = saveExists();
+		menu = new Menu(this, saveExists);
+	}
+	
+	public void startNewGame(){
+		game = new Game(this, false);
+		onMenu = false;
+	}
+	
+	public void startExistingGame(){
+		game = new Game(this, true);
+		onMenu = false;
 	}
 
 	private void update(int delta){
@@ -84,7 +96,7 @@ public class Main {
 			if(! Mouse.isGrabbed())
 				Mouse.setGrabbed(true);
 		}
-		
+
 		if(onMenu){
 			menu.update();
 			if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
@@ -107,7 +119,7 @@ public class Main {
 			}
 			game.update(delta);
 		}
-		
+
 		updateFPS();
 	}
 
@@ -134,7 +146,7 @@ public class Main {
 
 		return delta;
 	}
-	
+
 	private void updateFPS(){
 		if (getTime() - lastFps > 1000) {
 			fps = fpsCounter;
@@ -143,11 +155,24 @@ public class Main {
 		}
 		fpsCounter++;
 	}
-	
+
 	public int getFPS(){
 		return fps;
 	}
-	
+
+	private boolean saveExists(){
+		File workingDir = Util.getWorkingDirectory();
+		if(! workingDir.exists())
+			workingDir.mkdir();
+		File saveDataFile = new File(Util.getWorkingDirectory().getAbsolutePath() + "/savedata.dat");
+		if(! saveDataFile.exists()){
+			System.out.println("No existing save data");
+			return false;
+		}
+		else
+			return true;
+	}
+
 	public void setOnMenu(boolean onMenu){
 		this.onMenu = onMenu;
 	}

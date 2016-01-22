@@ -11,21 +11,22 @@ import javax.imageio.ImageIO;
 public class World {
 	private Game game;
 	private Cube[][][] cubes;
-	private ArrayList<ActiveObject> activeObjects;
 	private Light light;
 	public static final int CUBE_SIZE = 10;
 	private static int worldSizeX;
 	private static int worldSizeY;
 	private static int worldSizeZ;
+	private ArrayList<ActiveObject> activeObjects;
 	private ArrayList<Wall> xzWalls;
 	private ArrayList<Wall> xyWalls;
 	private ArrayList<Wall> yzWalls;
 	private ArrayList<SideBox> xyBoxes;
 	private ArrayList<SideBox> yzBoxes;
-	private ArrayList<TopBox> xzBoxes;
+	private ArrayList<TopBox>  xzBoxes;
+	private int worldID;
 	public World(Game game){
 		this.game = game;
-		loadWorld(4);
+		//loadWorld(4);
 		light = new Light(-60, 50, -30);
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
@@ -38,7 +39,8 @@ public class World {
 		activeObjects.add(new SavePoint(3 * CUBE_SIZE, CUBE_SIZE, 3 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 	}
 
-	private void loadWorld(int worldNumber){
+		public void loadWorld(int worldNumber){
+		worldID = worldNumber;
 		Scanner sizeFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/size.txt"));
 		worldSizeX = sizeFile.nextInt();
 		worldSizeY = sizeFile.nextInt();
@@ -270,6 +272,40 @@ public class World {
 			}
 		}
 	}
+	
+	/**
+	 * @param playerGridX player x position divided by cube size
+	 * @param playerGridY
+	 * @param playerGridZ
+	 * @return the id of the save that the player is on, zero if not on a save
+	 */
+	public int playerOnSave(int playerGridX, int playerGridY, int playerGridZ){
+		for(ActiveObject a : activeObjects){
+			if(a instanceof SavePoint){
+				SavePoint s = (SavePoint)a;
+				if(s.getGridX() == playerGridX && s.getGridY() == playerGridY && s.getGridZ() == playerGridZ)
+					return s.getSaveID();
+			}
+		}
+		return 0;
+	}
+	
+	public int[] getPositionOfSave(int saveID){
+		for(ActiveObject a : activeObjects){
+			if(a instanceof SavePoint){
+				SavePoint s = (SavePoint)a;
+				if(s.getSaveID() == saveID){
+					int[] position = new int[3];
+					position[0] = s.getGridX();
+					position[1] = s.getGridY();
+					position[2] = s.getGridZ();
+					return position;
+				}
+			}
+		}
+		System.out.println("SavePoint not found, maybe save file is corrupt");
+		return null;
+	}
 
 	public ArrayList<Wall> getXZWalls(){
 		return xzWalls;
@@ -294,4 +330,5 @@ public class World {
 	public static int getSizeX(){ return worldSizeX; }
 	public static int getSizeY(){ return worldSizeY; }
 	public static int getSizeZ(){ return worldSizeZ; }
+	public int getWorldID(){ return worldID; }
 }
