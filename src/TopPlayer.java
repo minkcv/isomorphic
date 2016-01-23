@@ -1,8 +1,6 @@
 import java.awt.Rectangle;
 import java.util.ArrayList;
-
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 public class TopPlayer {
 	private int x, y, width, height;

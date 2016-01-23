@@ -26,7 +26,6 @@ public class World {
 	private int worldID;
 	public World(Game game){
 		this.game = game;
-		//loadWorld(4);
 		light = new Light(-60, 50, -30);
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
@@ -37,10 +36,17 @@ public class World {
 		activeObjects = new ArrayList<ActiveObject>();
 		activeObjects.add(new Box(2 * CUBE_SIZE, CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
 		activeObjects.add(new SavePoint(3 * CUBE_SIZE, CUBE_SIZE, 3 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+		activeObjects.add(new Portal(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1, 0, 0, 1, 4, 1));
 	}
 
-		public void loadWorld(int worldNumber){
+	public void loadWorld(int worldNumber){
 		worldID = worldNumber;
+		yzWalls = new ArrayList<Wall>();
+		xzWalls = new ArrayList<Wall>();
+		xyWalls = new ArrayList<Wall>();
+		xyBoxes = new ArrayList<SideBox>();
+		yzBoxes = new ArrayList<SideBox>();
+		xzBoxes = new ArrayList<TopBox>();
 		Scanner sizeFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/size.txt"));
 		worldSizeX = sizeFile.nextInt();
 		worldSizeY = sizeFile.nextInt();
@@ -272,7 +278,7 @@ public class World {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param playerGridX player x position divided by cube size
 	 * @param playerGridY
@@ -289,7 +295,31 @@ public class World {
 		}
 		return 0;
 	}
-	
+
+	/**
+	 * @param playerGridX player x position divided by cube size
+	 * @param playerGridY
+	 * @param playerGridZ
+	 * @return portal destination: <br>
+	 * [0] = destination portal's id, <br>
+	 * [1] = destination portal's world
+	 */
+	public int[] playerOnPortal(int playerGridX, int playerGridY, int playerGridZ){
+		int[] destination = {0, 0};
+		for(ActiveObject a : activeObjects){
+			if(a instanceof Portal){
+				Portal p = (Portal)a;
+				if(p.getGridX() == playerGridX && p.getGridY() == playerGridY && p.getGridZ() == playerGridZ){
+					destination[0] = p.getDestinationID();
+					destination[1] = p.getDestinationWorld();
+					return destination;
+				}
+			}
+		}
+		return destination;
+	}
+
+	// returns grid position of save if one matches save id
 	public int[] getPositionOfSave(int saveID){
 		for(ActiveObject a : activeObjects){
 			if(a instanceof SavePoint){
@@ -306,6 +336,25 @@ public class World {
 		System.out.println("SavePoint not found, maybe save file is corrupt");
 		return null;
 	}
+	
+	//returns grid position of portal if one matches portal id
+	public int[] getPositionOfPortal(int portalID){
+		for(ActiveObject a : activeObjects){
+			if(a instanceof Portal){
+				Portal p = (Portal)a;
+				if(p.getCurrentID() == portalID){
+					int[] position = new int[3];
+					position[0] = p.getGridX();
+					position[1] = p.getGridY();
+					position[2] = p.getGridZ();
+					return position;
+				}
+			}
+		}
+		System.out.println("Portal not found, check destinations of portals");
+		return null;
+	}
+
 
 	public ArrayList<Wall> getXZWalls(){
 		return xzWalls;

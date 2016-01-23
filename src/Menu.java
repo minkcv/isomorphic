@@ -52,9 +52,18 @@ public class Menu {
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 
-		GameFonts.courierFont20pt.drawString(20, 20, "Press enter to start or esc to quit", Color.white);
-		GameFonts.courierFont20pt.drawString(20, 40, "Arrows to rotate the world", Color.white);
-		GameFonts.courierFont20pt.drawString(20, 60, "", Color.white);
+		if(gameInProgress){
+			GameFonts.courierFont20pt.drawString(20, 20, "Press enter to resume or esc to quit", Color.white);
+		}
+		else{
+			if(saveExists){
+				GameFonts.courierFont20pt.drawString(20, 20, "Press enter to continue or esc to quit.", Color.white);
+			}
+			else{
+				GameFonts.courierFont20pt.drawString(20, 20, "Press enter to start a new game or esc to quit.", Color.white);
+			}
+		}
+		GameFonts.courierFont20pt.drawString(20, 40, "WASD to move. Arrows to rotate the world.", Color.white);
 	}
 	
 	public boolean isGameInProgress(){ return gameInProgress; }

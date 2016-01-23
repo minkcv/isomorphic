@@ -73,13 +73,21 @@ public class Game {
 		axes.render();
 	}
 
-	public boolean tryToSave(int playerGridX, int playerGridY, int playerGridZ){
+	public void usePortalOrSave(int playerGridX, int playerGridY, int playerGridZ){
 		int saveID = world.playerOnSave(playerGridX, playerGridY, playerGridZ);
 		if(saveID > 0){
 			saveGame(saveID, world.getWorldID());
-			return true;
+			return;
 		}
-		return false;
+		int[] destination = world.playerOnPortal(playerGridX, playerGridY, playerGridZ);
+		if(destination[0] > 0){
+			int destID = destination[0];
+			int destWorld = destination[1];
+			world.loadWorld(destWorld);
+			int[] portalPosition = world.getPositionOfPortal(destID);
+			player.setPosition(portalPosition[0] * World.CUBE_SIZE, portalPosition[1] * World.CUBE_SIZE, portalPosition[2] * World.CUBE_SIZE);
+			
+		}
 	}
 
 	private void saveGame(int saveID, int worldID){

@@ -41,10 +41,9 @@ public class Player {
 			onGround = sidePlayer.onGround();
 		}
 		
-		boolean saved = false;
 		if(Keyboard.isKeyDown(Keyboard.KEY_E)){
 			if(eReleased){
-				saved = game.tryToSave(getGridX(), getGridY(), getGridZ());
+				game.usePortalOrSave(getGridX(), getGridY(), getGridZ());
 			}
 			eReleased = false;
 		}
@@ -151,4 +150,10 @@ public class Player {
 	public int getGridZ(){ return (int)z / World.CUBE_SIZE; }
 	
 	public boolean onGround(){ return onGround; }
+	
+	public void setPosition(float x, float y, float z){
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
 }
