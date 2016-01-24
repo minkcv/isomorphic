@@ -1,3 +1,5 @@
+import java.awt.Rectangle;
+
 import org.lwjgl.opengl.GL11;
 
 
@@ -10,6 +12,9 @@ public class Portal implements ActiveObject {
 	private int destinationID;
 	private int destinationWorld;
 	private int currentID;
+	private Rectangle xyPortalRect;
+	private Rectangle xzPortalRect;
+	private Rectangle yzPortalRect;
 	public Portal(float x, float y, float z, 
 			float width, float height, float depth, 
 			float red, float green, float blue,
@@ -23,6 +28,9 @@ public class Portal implements ActiveObject {
 		this.width = width;
 		this.depth = height;
 		this.height = depth;
+		xyPortalRect = new Rectangle((int)x, (int)y, (int)width, (int)depth);
+		xzPortalRect = new Rectangle((int)x, (int)z, (int)width, (int)height);
+		yzPortalRect = new Rectangle((int)z, (int)y, (int)depth, (int)height);
 		r = red;
 		g = green;
 		b = blue;
@@ -161,6 +169,10 @@ public class Portal implements ActiveObject {
 	public int getGridX(){ return gridX; }
 	public int getGridY(){ return gridY; }
 	public int getGridZ(){ return gridZ; }
+	
+	public Rectangle getXYRectangle(){ return xyPortalRect; }
+	public Rectangle getXZRectangle(){ return xzPortalRect; }
+	public Rectangle getYZRectangle(){ return yzPortalRect; }
 	
 	public int getDestinationID(){ return destinationID; }
 	public int getDestinationWorld(){ return destinationWorld; }

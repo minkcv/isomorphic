@@ -24,6 +24,8 @@ public class World {
 	private ArrayList<SideBox> yzBoxes;
 	private ArrayList<TopBox>  xzBoxes;
 	private int worldID;
+	
+	// does not load a world
 	public World(Game game){
 		this.game = game;
 		light = new Light(-60, 50, -30);
@@ -34,9 +36,6 @@ public class World {
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
 		activeObjects = new ArrayList<ActiveObject>();
-		activeObjects.add(new Box(2 * CUBE_SIZE, CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
-		activeObjects.add(new SavePoint(3 * CUBE_SIZE, CUBE_SIZE, 3 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
-		activeObjects.add(new Portal(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1, 0, 0, 1, 4, 1));
 	}
 
 	public void loadWorld(int worldNumber){
@@ -47,6 +46,10 @@ public class World {
 		xyBoxes = new ArrayList<SideBox>();
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
+		activeObjects = new ArrayList<ActiveObject>();
+		activeObjects.add(new Box(2 * CUBE_SIZE, CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
+		activeObjects.add(new SavePoint(3 * CUBE_SIZE, CUBE_SIZE, 3 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+		activeObjects.add(new Portal(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1, 0, 0, 1, 4, 1));
 		Scanner sizeFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/size.txt"));
 		worldSizeX = sizeFile.nextInt();
 		worldSizeY = sizeFile.nextInt();
@@ -278,38 +281,23 @@ public class World {
 			}
 		}
 	}
-
+	
 	/**
-	 * @param playerGridX player x position divided by cube size
-	 * @param playerGridY
-	 * @param playerGridZ
-	 * @return the id of the save that the player is on, zero if not on a save
+	 * tests if a player is touching a portal and returns the portal info
+	 * @param playerX player actual position, not grid
+	 * @param playerY
+	 * @param playerZ
+	 * @return portal information:<br>
+	 *  destination[0] = portal destination id<br>
+	 *  destination[1] = portal destination world
+	 *  returns {0, 0} if not on a portal
 	 */
-	public int playerOnSave(int playerGridX, int playerGridY, int playerGridZ){
-		for(ActiveObject a : activeObjects){
-			if(a instanceof SavePoint){
-				SavePoint s = (SavePoint)a;
-				if(s.getGridX() == playerGridX && s.getGridY() == playerGridY && s.getGridZ() == playerGridZ)
-					return s.getSaveID();
-			}
-		}
-		return 0;
-	}
-
-	/**
-	 * @param playerGridX player x position divided by cube size
-	 * @param playerGridY
-	 * @param playerGridZ
-	 * @return portal destination: <br>
-	 * [0] = destination portal's id, <br>
-	 * [1] = destination portal's world
-	 */
-	public int[] playerOnPortal(int playerGridX, int playerGridY, int playerGridZ){
+	public int[] playerOnPortal(int playerX, int playerY, int playerZ){
 		int[] destination = {0, 0};
 		for(ActiveObject a : activeObjects){
 			if(a instanceof Portal){
 				Portal p = (Portal)a;
-				if(p.getGridX() == playerGridX && p.getGridY() == playerGridY && p.getGridZ() == playerGridZ){
+				if(Math.abs(p.getX() - playerX) < CUBE_SIZE && Math.abs(p.getY() - playerY) < CUBE_SIZE && Math.abs(p.getZ() - playerZ) < CUBE_SIZE){
 					destination[0] = p.getDestinationID();
 					destination[1] = p.getDestinationWorld();
 					return destination;
@@ -317,6 +305,24 @@ public class World {
 			}
 		}
 		return destination;
+	}
+	
+	/**
+	 * tests if a player is touching a save and returns the save id
+	 * @param playerX player actual position, not grid
+	 * @param playerY
+	 * @param playerZ
+	 * @return id of the save point
+	 */
+	public int playerOnSave(int playerX, int playerY, int playerZ){
+		for(ActiveObject a : activeObjects){
+			if(a instanceof SavePoint){
+				SavePoint s = (SavePoint)a;
+				if(Math.abs(s.getX() - playerX) < CUBE_SIZE && Math.abs(s.getY() - playerY) < CUBE_SIZE && Math.abs(s.getZ() - playerZ) < CUBE_SIZE)
+					return s.getSaveID();
+			}
+		}
+		return 0;
 	}
 
 	// returns grid position of save if one matches save id

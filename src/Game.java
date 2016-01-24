@@ -73,13 +73,13 @@ public class Game {
 		axes.render();
 	}
 
-	public void usePortalOrSave(int playerGridX, int playerGridY, int playerGridZ){
-		int saveID = world.playerOnSave(playerGridX, playerGridY, playerGridZ);
+	public void usePortalOrSave(int playerX, int playerY, int playerZ){
+		int saveID = world.playerOnSave(playerX, playerY, playerZ);
 		if(saveID > 0){
 			saveGame(saveID, world.getWorldID());
 			return;
 		}
-		int[] destination = world.playerOnPortal(playerGridX, playerGridY, playerGridZ);
+		int[] destination = world.playerOnPortal(playerX, playerY, playerZ);
 		if(destination[0] > 0){
 			int destID = destination[0];
 			int destWorld = destination[1];

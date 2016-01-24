@@ -43,7 +43,7 @@ public class Player {
 		
 		if(Keyboard.isKeyDown(Keyboard.KEY_E)){
 			if(eReleased){
-				game.usePortalOrSave(getGridX(), getGridY(), getGridZ());
+				game.usePortalOrSave((int)x, (int)y, (int)z);
 			}
 			eReleased = false;
 		}
