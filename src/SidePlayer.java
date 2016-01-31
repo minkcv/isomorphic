@@ -12,8 +12,8 @@ public class SidePlayer {
 	private Rectangle topRightRectangle;
 	private Rectangle leftTallRectangle; // height and yVelocity tall (past feet)
 	private Rectangle rightTallRectangle;
-	private Rectangle leftBoxRect; // height tall
-	private Rectangle rightBoxRect;
+	private Rectangle leftPushRect; // height tall
+	private Rectangle rightPushRect;
 	private Rectangle bottomRectangle;
 	private Rectangle bottomLeftRectangle;
 	private Rectangle bottomRightRectangle;
@@ -95,7 +95,7 @@ public class SidePlayer {
 		}
 
 		updateRectangles();
-		boxCollisions(boxes);
+		boxCollisions(boxes, walls, zSide);
 		collisionDetection(walls);
 
 		x += xVelocity;
@@ -109,11 +109,29 @@ public class SidePlayer {
 		topRightRectangle = new Rectangle(x + width, y + (Math.abs(yVelocity) + height), Math.abs(xVelocity), Math.abs(yVelocity));
 		leftTallRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
 		rightTallRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), height + Math.abs(yVelocity));
-		leftBoxRect = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), height);
-		rightBoxRect = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), height);
 		bottomLeftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), Math.abs(xVelocity), Math.abs(yVelocity));
 		bottomRightRectangle = new Rectangle(x - Math.abs(xVelocity), y - Math.abs(yVelocity), Math.abs(xVelocity), Math.abs(yVelocity));
 		bottomRectangle = new Rectangle(x, y - Math.abs(yVelocity), width, Math.abs(yVelocity));
+		
+		leftPushRect = new Rectangle(x + width, y, xMoveSpeed, height);
+		rightPushRect = new Rectangle(x - xMoveSpeed, y, xMoveSpeed, height);
+	}
+	
+	private void boxCollisions(ArrayList<SideBox> boxes, ArrayList<Wall> walls, boolean zSide){
+		for(SideBox b : boxes){
+			if(leftPushRect.intersects(b.getRightRect()) && xVelocity > 0){
+				if(b.isZSide())
+					b.pushRight(walls, zSide);
+				else
+					b.pushLeft(walls, zSide);
+			}
+			else if(rightPushRect.intersects(b.getLeftRect()) && xVelocity < 0){
+				if(b.isZSide())
+					b.pushLeft(walls, zSide);
+				else
+					b.pushRight(walls, zSide);
+			}
+		}
 	}
 
 	private void collisionDetection(ArrayList<Wall> walls){
@@ -201,25 +219,8 @@ public class SidePlayer {
 			yVelocity = partialJumpDistance;
 		}
 	}
-	
-	private void boxCollisions(ArrayList<SideBox> boxes){
-		for(SideBox b : boxes){
-			if(leftBoxRect.intersects(b.getRightRect())){
-				if(b.isZSide())
-					b.pushRight();
-				else
-					b.pushLeft();
-			}
-			else if(rightBoxRect.intersects(b.getLeftRect())){
-				if(b.isZSide())
-					b.pushLeft();
-				else
-					b.pushRight();
-			}
-		}
-	}
+
 	public int getX(){ return x; }
 	public int getY(){ return y; }
-	
 	public boolean onGround(){ return onGround; }
 }

@@ -33,6 +33,9 @@ public class TopBox extends Wall{
 		updateRectangles();
 	}
 	
+	/*
+	 * topbox movement is event driven from the player using the push methods
+	 */
 	public void pushLeft(ArrayList<Wall> walls){ 
 		pushLeft = true;
 		move(walls);
@@ -75,11 +78,10 @@ public class TopBox extends Wall{
 		
 		x += xVelocity;
 		y += yVelocity;
-		
 		updateRectangles();
 	}
 
-	private void updateRectangles(){
+	public void updateRectangles(){
 		bounding = new Rectangle(x, y, width, height);
 
 		//top is sort of bottom here because awt and opengl coordinate systems / rectangle origins
@@ -92,10 +94,10 @@ public class TopBox extends Wall{
 		bottomLeftCR = new Rectangle(x - moveSpeed, y + height, moveSpeed, moveSpeed);
 		bottomRightCR = new Rectangle(x + width, y + height, moveSpeed, moveSpeed);
 		
-		topPushRect = new Rectangle(x, y, width, 1);
-		bottomPushRect = new Rectangle(x, y + height - 1, width, 1);
-		leftPushRect = new Rectangle(x, y , 1, height);
-		rightPushRect = new Rectangle(x + width - 1, y, 1, height);
+		topPushRect = new Rectangle(x, y, width, moveSpeed);
+		bottomPushRect = new Rectangle(x, y + height - moveSpeed, width, moveSpeed);
+		leftPushRect = new Rectangle(x, y , moveSpeed, height);
+		rightPushRect = new Rectangle(x + width - moveSpeed, y, moveSpeed, height);
 	}
 
 	private void collisionDetection(ArrayList<Wall> walls){
@@ -225,6 +227,5 @@ public class TopBox extends Wall{
 	public void setPosition(int boxX, int boxY){
 		x = boxX;
 		y = boxY;
-		updateRectangles();
 	}
 }

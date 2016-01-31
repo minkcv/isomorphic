@@ -69,10 +69,10 @@ public class TopPlayer {
 		bottomLeftCR = new Rectangle(x - moveSpeed, y + height, moveSpeed, moveSpeed);
 		bottomRightCR = new Rectangle(x + width, y + height, moveSpeed, moveSpeed);
 		
-		topPushRect = new Rectangle(x, y - 1, width, 1);
-		bottomPushRect = new Rectangle(x, y + height, width, 1);
-		leftPushRect = new Rectangle(x - 1, y , 1, height);
-		rightPushRect = new Rectangle(x + width, y, 1, height);
+		topPushRect = new Rectangle(x, y - moveSpeed, width, moveSpeed);
+		bottomPushRect = new Rectangle(x, y + height, width, moveSpeed);
+		leftPushRect = new Rectangle(x - moveSpeed, y , moveSpeed, height);
+		rightPushRect = new Rectangle(x + width, y, moveSpeed, height);
 	}
 
 	private void collisionDetection(ArrayList<Wall> walls){

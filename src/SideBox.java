@@ -12,7 +12,10 @@ public class SideBox extends Wall{
 	private Rectangle bottomLeftRectangle;
 	private Rectangle bottomRightRectangle;
 	private Rectangle belowPlayersFeetRectangle;
-	
+
+	private Rectangle leftPushRect;
+	private Rectangle rightPushRect;
+
 	private int xMoveSpeed = 1;
 	private int xVelocity, yVelocity;
 	private int jumpSpeed;
@@ -21,12 +24,12 @@ public class SideBox extends Wall{
 	private int maxFallSpeed;
 	private boolean touchingGround;
 	private final int normalFallFactor = 60;
-	
+
 	private boolean pushLeft;
 	private boolean pushRight;
-	
+
 	private boolean zSide;
-	
+
 	public SideBox(int x, int y, int width, int height){
 		super(x, y, width, height);
 		this.x = x;
@@ -38,14 +41,51 @@ public class SideBox extends Wall{
 		fallFactor = normalFallFactor;
 		updateRectangles();
 	}
-	
-	public void update(ArrayList<Wall> walls, int boxX, int boxY, boolean zSide){
-		x = boxX;
+
+	/*
+	 * sideboxes horizontal movement is event driven from the player using the push methods
+	 * verical movement is actively updated
+	 */
+	public void pushLeft(ArrayList<Wall> walls, boolean zSide){
+		pushLeft = true;
+		move(walls, zSide);
+	}
+	public void pushRight(ArrayList<Wall> walls, boolean zSide){
+		pushRight = true;
+		move(walls, zSide);
+	}
+
+	// only updates vertical aspect of box
+	public void update(ArrayList<Wall> walls, int boxY, boolean zSide){
 		y = boxY;
 		this.zSide = zSide;
 		bounding = new Rectangle(x, y, width, height);
 		belowPlayersFeetRectangle = new Rectangle(x, y - 1, width, 1);
 
+		touchingGround = false;
+		for(Wall w : walls){
+			if(belowPlayersFeetRectangle.intersects(w.getBounding())){
+				touchingGround = true;
+				yVelocity = 0;
+			}
+		}
+
+		if(!touchingGround){
+			fallingTime += 15;
+			yVelocity -= (fallingTime / fallFactor);
+
+			if(yVelocity < maxFallSpeed){
+				yVelocity = maxFallSpeed;
+			}
+		}
+
+		updateRectangles();
+		verticalCollisionDetection(walls);
+
+		y += yVelocity;
+	}
+
+	private void move(ArrayList<Wall> walls, boolean zSide){
 		if(pushLeft){
 			if(zSide)
 				xVelocity = -xMoveSpeed;
@@ -62,38 +102,38 @@ public class SideBox extends Wall{
 			xVelocity = 0;
 		}
 
-		touchingGround = false;
-		for(Wall w : walls){
-			if(belowPlayersFeetRectangle.intersects(w.getBounding())){
-				touchingGround = true;
-				yVelocity = 0;
-			}
-		}
-
-		if(!touchingGround){
-			yVelocity += jumpSpeed;		
-		}
-
-		if(!touchingGround){
-			fallingTime += 15;
-			yVelocity -= (fallingTime / fallFactor);
-
-			if(yVelocity < maxFallSpeed){
-				yVelocity = maxFallSpeed;
-			}
-		}
-		
 		pushLeft = false;
 		pushRight = false;
 
-		updateRectangles();
-		collisionDetection(walls);
+		boolean rightCollides = false;
+		boolean leftCollides = false;
+
+		for(Wall w : walls){
+
+			//horizontal
+			if(leftRectangle.intersects(w.getBounding())){
+				leftCollides = true;
+			}
+			if(rightRectangle.intersects(w.getBounding())){
+				rightCollides = true;
+			}
+		}
+
+		//horizontal stopping
+		if(leftCollides && xVelocity > 0){
+			xVelocity = 0;
+		}
+
+		if(rightCollides && xVelocity < 0){
+			xVelocity = 0;			
+		}
 
 		x += xVelocity;
-		y += yVelocity;
+		
+		updateRectangles();
 	}
 
-	private void updateRectangles(){
+	public void updateRectangles(){
 		// AWT Rectangles have different origin specification than opengl
 		topRectangle = new Rectangle(x, y + (Math.abs(yVelocity) + height), width, Math.abs(yVelocity));
 		topLeftRectangle = new Rectangle(x - xMoveSpeed, y + (Math.abs(yVelocity) - height), xMoveSpeed, Math.abs(yVelocity));
@@ -103,26 +143,16 @@ public class SideBox extends Wall{
 		bottomLeftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), xMoveSpeed, Math.abs(yVelocity));
 		bottomRightRectangle = new Rectangle(x - xMoveSpeed, y - Math.abs(yVelocity), xMoveSpeed, Math.abs(yVelocity));
 		bottomRectangle = new Rectangle(x, y - Math.abs(yVelocity), width, Math.abs(yVelocity));
+		
+		leftPushRect = new Rectangle(x + width - xMoveSpeed, y, xMoveSpeed, height);
+		rightPushRect = new Rectangle(x, y, xMoveSpeed, height);
 	}
-	
-	private void collisionDetection(ArrayList<Wall> walls){
-		boolean rightCollides = false;
-		boolean leftCollides = false;
+
+	private void verticalCollisionDetection(ArrayList<Wall> walls){
 		int partialFallDistance = Integer.MAX_VALUE;
 		int partialJumpDistance = Integer.MAX_VALUE;
-
-		Rectangle gapRect = new Rectangle(0, 0);
-		boolean wallBelowGap = false;
-		boolean wallAboveGap = false;
+		
 		for(Wall w : walls){
-
-			//horizontal
-			if(leftRectangle.intersects(w.getBounding())){
-				rightCollides = true;
-			}
-			if(rightRectangle.intersects(w.getBounding())){
-				leftCollides = true;
-			}
 
 			//vertical
 
@@ -142,35 +172,6 @@ public class SideBox extends Wall{
 					partialFallDistance = distanceToTopOfWall;
 				}
 			}
-
-			// 2 block tall gap between walls
-			if((xVelocity < 0 && bottomLeftRectangle.intersects(w.getBounding())) || (xVelocity > 0 && bottomRightRectangle.intersects(w.getBounding()))){
-				gapRect = new Rectangle(w.getBounding().x, w.getBounding().y, w.getBounding().width, 2 * w.getBounding().height);
-				wallBelowGap = true;
-			}
-			if((xVelocity < 0 && topLeftRectangle.intersects(w.getBounding())) || (xVelocity > 0 && topRightRectangle.intersects(w.getBounding()))){
-				wallAboveGap = true;
-			}
-		}
-
-		boolean gapOpen = true;
-		for(Wall w : walls){
-			if(gapRect.intersects(w.getBounding())){
-				gapOpen = false;
-			}
-		}
-
-		if(gapOpen && wallBelowGap && wallAboveGap){
-			partialFallDistance = gapRect.y - this.bounding.y;
-		}
-
-		//horizontal stopping
-		if(leftCollides && xVelocity < 0 && !(gapOpen && wallBelowGap && wallAboveGap)){
-			xVelocity = 0;
-		}
-
-		if(rightCollides && xVelocity > 0 && !(gapOpen && wallBelowGap && wallAboveGap)){
-			xVelocity = 0;			
 		}
 
 		//vertical stopping
@@ -190,15 +191,16 @@ public class SideBox extends Wall{
 			yVelocity = partialJumpDistance;
 		}
 	}
-	
+
 	public int getX(){ return x; }
 	public int getY(){ return y; }
-	
-	public Rectangle getLeftRect(){ return leftRectangle; }
-	public Rectangle getRightRect(){ return rightRectangle; }
-	
-	public void pushLeft(){ pushLeft = true; }
-	public void pushRight(){ pushRight = true; }
-	
+
+	public Rectangle getLeftRect(){ return leftPushRect; }
+	public Rectangle getRightRect(){ return rightPushRect; }
+
 	public boolean isZSide(){ return zSide; }
+	public void setPosition(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
 }

@@ -19,12 +19,15 @@ public class Box extends Cube implements ActiveObject{
 		if(previousDirection != direction){
 			if(direction == Camera.Direction.Y){
 				topBox.setPosition((int)x, (int)z);
+				topBox.updateRectangles();
 			}
 			else if(direction == Camera.Direction.X){
-				sideBox.update(world.getYZWalls(), (int)z, (int)y, false);
+				sideBox.setPosition((int)z, (int)y);
+				sideBox.updateRectangles();
 			}
 			else if(direction == Camera.Direction.Z){
-				sideBox.update(world.getXYWalls(), (int)x, (int)y, true);
+				sideBox.setPosition((int)x, (int)y);
+				sideBox.updateRectangles();
 			}
 
 			previousDirection = direction;
@@ -35,10 +38,12 @@ public class Box extends Cube implements ActiveObject{
 				z = topBox.getY();
 			}
 			else if(direction == Camera.Direction.X){
+				sideBox.update(world.getYZWalls(), (int)y, false);
 				z = sideBox.getX();
 				y = sideBox.getY();
 			}
 			else if(direction == Camera.Direction.Z){
+				sideBox.update(world.getXYWalls(), (int)y, true);
 				x = sideBox.getX();
 				y = sideBox.getY();
 			}
