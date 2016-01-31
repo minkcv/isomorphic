@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -24,7 +25,7 @@ public class World {
 	private ArrayList<SideBox> yzBoxes;
 	private ArrayList<TopBox>  xzBoxes;
 	private int worldID;
-	
+
 	// does not load a world
 	public World(Game game){
 		this.game = game;
@@ -47,9 +48,6 @@ public class World {
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
 		activeObjects = new ArrayList<ActiveObject>();
-		activeObjects.add(new Box(2 * CUBE_SIZE, CUBE_SIZE, 2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 0, 0, 1));
-		activeObjects.add(new SavePoint(3 * CUBE_SIZE, CUBE_SIZE, 3 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
-		activeObjects.add(new Portal(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1, 0, 0, 1, 4, 1));
 		Scanner sizeFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/size.txt"));
 		worldSizeX = sizeFile.nextInt();
 		worldSizeY = sizeFile.nextInt();
@@ -73,17 +71,34 @@ public class World {
 				e.printStackTrace();
 			}
 		}
-	}
 
-	public void update(Camera.Direction direction){
-		for (int i = 0; i < cubes.length; i++) {
-			for (int j = 0; j < cubes[i].length; j++) {
-				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
-					//if(cubes[i][j][j2] != null)
-					//cubes[i][j][j2].update(this, direction);
+		Scanner objectsFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/objects.txt"));
+		while(objectsFile.hasNext()){
+			String type = objectsFile.next();
+			if(!type.startsWith("#")){
+				switch(type){
+				case "portal":
+					activeObjects.add(new Portal(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x. y, z
+							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, // width, height, depth
+							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), // red green blue
+							objectsFile.nextInt(), objectsFile.nextInt(), objectsFile.nextInt())); // destID, destWorld, currentID
+					break;
+				case "save":
+					activeObjects.add(new SavePoint(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
+							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE)); // width, height, depth
+					break;
+				case "box":
+					activeObjects.add(new Box(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
+							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, // width, height, depth
+							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat())); // red green blue
+					break;
 				}
 			}
 		}
+		objectsFile.close();
+	}
+
+	public void update(Camera.Direction direction){
 		for(ActiveObject b : activeObjects){
 			b.update(this, direction);
 		}
@@ -281,7 +296,7 @@ public class World {
 			}
 		}
 	}
-	
+
 	/**
 	 * tests if a player is touching a portal and returns the portal info
 	 * @param playerX player actual position, not grid
@@ -306,7 +321,7 @@ public class World {
 		}
 		return destination;
 	}
-	
+
 	/**
 	 * tests if a player is touching a save and returns the save id
 	 * @param playerX player actual position, not grid
@@ -342,7 +357,7 @@ public class World {
 		System.out.println("SavePoint not found, maybe save file is corrupt");
 		return null;
 	}
-	
+
 	//returns grid position of portal if one matches portal id
 	public int[] getPositionOfPortal(int portalID){
 		for(ActiveObject a : activeObjects){

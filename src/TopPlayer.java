@@ -16,6 +16,11 @@ public class TopPlayer {
 	private Rectangle bottomLeftCR;
 	private Rectangle bottomRightCR;
 	
+	private Rectangle bottomPushRect;
+	private Rectangle topPushRect;
+	private Rectangle leftPushRect;
+	private Rectangle rightPushRect;
+	
 	public TopPlayer(int x, int y, int width, int height){
 		this.x = x;
 		this.y = y;
@@ -42,7 +47,7 @@ public class TopPlayer {
 			xVelocity = moveSpeed;
 		}
 		
-		boxCollision(boxes);
+		boxCollision(boxes, walls);
 		
 		collisionDetection(walls);
 		
@@ -55,14 +60,19 @@ public class TopPlayer {
 		bounding = new Rectangle(x, y, width, height);
 
 		//top is sort of bottom here because awt and opengl coordinate systems / rectangle origins
-		rightCollisionRect = new Rectangle((int)(x + bounding.getWidth()), y, moveSpeed, (int)bounding.getHeight());
-		leftCollisionRect = new Rectangle(x - moveSpeed, y, moveSpeed, (int)bounding.getHeight());
-		topCollisionRect = new Rectangle(x, y - moveSpeed, (int)bounding.getWidth(), moveSpeed);
-		bottomCollisionRect = new Rectangle(x, (int)(y + bounding.getHeight()), (int)bounding.getWidth(), moveSpeed);
-		topLeftCR = new Rectangle((int)(x - moveSpeed), (int)(y - moveSpeed), moveSpeed, moveSpeed);
-		topRightCR = new Rectangle((int)(x + bounding.getWidth()), y - moveSpeed, moveSpeed, moveSpeed);
-		bottomLeftCR = new Rectangle(x - moveSpeed, (int)(y + bounding.getHeight()), moveSpeed, moveSpeed);
-		bottomRightCR = new Rectangle((int)(x + bounding.getWidth()), (int)(y + bounding.getHeight()), moveSpeed, moveSpeed);
+		rightCollisionRect = new Rectangle(x + width, y, moveSpeed, height);
+		leftCollisionRect = new Rectangle(x - moveSpeed, y, moveSpeed, height);
+		topCollisionRect = new Rectangle(x, y - moveSpeed, width, moveSpeed);
+		bottomCollisionRect = new Rectangle(x, y + height, width, moveSpeed);
+		topLeftCR = new Rectangle((int)(x - moveSpeed), y - moveSpeed, moveSpeed, moveSpeed);
+		topRightCR = new Rectangle((int)(x + width), y - moveSpeed, moveSpeed, moveSpeed);
+		bottomLeftCR = new Rectangle(x - moveSpeed, y + height, moveSpeed, moveSpeed);
+		bottomRightCR = new Rectangle(x + width, y + height, moveSpeed, moveSpeed);
+		
+		topPushRect = new Rectangle(x, y - 1, width, 1);
+		bottomPushRect = new Rectangle(x, y + height, width, 1);
+		leftPushRect = new Rectangle(x - 1, y , 1, height);
+		rightPushRect = new Rectangle(x + width, y, 1, height);
 	}
 
 	private void collisionDetection(ArrayList<Wall> walls){
@@ -180,19 +190,19 @@ public class TopPlayer {
 		}
 	}
 	
-	private void boxCollision(ArrayList<TopBox> boxes){
+	private void boxCollision(ArrayList<TopBox> boxes, ArrayList<Wall> walls){
 		for(TopBox b : boxes){
-			if(topCollisionRect.intersects(b.getBottomRect())){
-				b.pushDown();
+			if(topPushRect.intersects(b.getBottomRect()) && yVelocity < 0){
+				b.pushDown(walls);
 			}
-			if(rightCollisionRect.intersects(b.getLeftRect())){
-				b.pushRight();
+			if(rightPushRect.intersects(b.getLeftRect()) && xVelocity > 0){
+				b.pushRight(walls);
 			}
-			if(leftCollisionRect.intersects(b.getRightRect())){
-				b.pushLeft();
+			if(leftPushRect.intersects(b.getRightRect()) && xVelocity < 0){
+				b.pushLeft(walls);
 			}
-			if(bottomCollisionRect.intersects(b.getTopRect())){
-				b.pushUp();
+			if(bottomPushRect.intersects(b.getTopRect()) && yVelocity > 0){
+				b.pushUp(walls);
 			}
 		}
 	}

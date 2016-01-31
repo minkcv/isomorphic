@@ -68,7 +68,7 @@ public class Game {
 		world.render(camera.getDirection());
 
 		camera.undoTransform();
-		GL11.glTranslatef(15 - scale, 15 - scale, 0);
+		GL11.glTranslatef(15 - scale, 15 - scale, -scale);
 		camera.rotateToCamera();
 		axes.render();
 	}

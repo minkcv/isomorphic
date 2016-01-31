@@ -4,34 +4,47 @@ import org.lwjgl.opengl.GL11;
 public class Box extends Cube implements ActiveObject{
 	private TopBox topBox;
 	private SideBox sideBox;
+	private Camera.Direction previousDirection;
 	public Box(float x, float y, float z, 
 			float width, float height, float depth,
 			float r, float g, float b){
 		super(x, y, z, width, height, depth, r, g, b);
-		
+
 		topBox = new TopBox((int)x, (int)z, (int)width, (int)height);
 		sideBox = new SideBox((int)x, (int)y, (int)width, (int)height);
 	}
 
 	@Override
 	public void update(World world, Camera.Direction direction){
-		if(direction == Camera.Direction.Y){
-			topBox.update(world.getXZWalls(), (int)x, (int)z);
-			x = topBox.getX();
-			z = topBox.getY();
+		if(previousDirection != direction){
+			if(direction == Camera.Direction.Y){
+				topBox.setPosition((int)x, (int)z);
+			}
+			else if(direction == Camera.Direction.X){
+				sideBox.update(world.getYZWalls(), (int)z, (int)y, false);
+			}
+			else if(direction == Camera.Direction.Z){
+				sideBox.update(world.getXYWalls(), (int)x, (int)y, true);
+			}
+
+			previousDirection = direction;
 		}
-		else if(direction == Camera.Direction.X){
-			sideBox.update(world.getYZWalls(), (int)z, (int)y, false);
-			z = sideBox.getX();
-			y = sideBox.getY();
-		}
-		else if(direction == Camera.Direction.Z){
-			sideBox.update(world.getXYWalls(), (int)x, (int)y, true);
-			x = sideBox.getX();
-			y = sideBox.getY();
+		else{
+			if(direction == Camera.Direction.Y){
+				x = topBox.getX();
+				z = topBox.getY();
+			}
+			else if(direction == Camera.Direction.X){
+				z = sideBox.getX();
+				y = sideBox.getY();
+			}
+			else if(direction == Camera.Direction.Z){
+				x = sideBox.getX();
+				y = sideBox.getY();
+			}
 		}
 	}
-	
+
 	@Override
 	public void alignPosition(){
 		if(x % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
@@ -40,20 +53,22 @@ public class Box extends Cube implements ActiveObject{
 		else if(x % World.CUBE_SIZE < World.CUBE_SIZE / 2){
 			x -= x % World.CUBE_SIZE;
 		}
-		
+
 		if(y % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
 			y += World.CUBE_SIZE - (y % World.CUBE_SIZE);
 		}
 		else if(y % World.CUBE_SIZE < World.CUBE_SIZE / 2){
 			y -= y % World.CUBE_SIZE;
 		}
-		
+
 		if(z % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
 			z += World.CUBE_SIZE - (z % World.CUBE_SIZE);
 		}
 		else if(z % World.CUBE_SIZE < World.CUBE_SIZE / 2){
 			z -= z % World.CUBE_SIZE;
 		}
+		
+		topBox.setPosition((int)x, (int)z);
 	}
 
 	@Override
@@ -110,7 +125,7 @@ public class Box extends Cube implements ActiveObject{
 			GL11.glTranslatef(-x, -y, -z);
 		}
 	}
-	
+
 	public TopBox getTopBox(){ return topBox; }
 	public SideBox getSideBox(){ return sideBox; }
 	public float getX(){ return x; }

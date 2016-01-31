@@ -14,6 +14,11 @@ public class TopBox extends Wall{
 	private Rectangle bottomLeftCR;
 	private Rectangle bottomRightCR;
 	
+	private Rectangle bottomPushRect;
+	private Rectangle topPushRect;
+	private Rectangle leftPushRect;
+	private Rectangle rightPushRect;
+	
 	private boolean pushUp; // this box is being pushed upward from the bottom
 	private boolean pushDown;
 	private boolean pushLeft;
@@ -27,13 +32,27 @@ public class TopBox extends Wall{
 		this.height = height;
 		updateRectangles();
 	}
-
-	public void update(ArrayList<Wall> walls, int boxX, int boxY){
-		x = boxX;
-		y = boxY;
+	
+	public void pushLeft(ArrayList<Wall> walls){ 
+		pushLeft = true;
+		move(walls);
+	}
+	public void pushRight(ArrayList<Wall> walls){
+		pushRight = true;
+		move(walls);
+	}
+	public void pushDown(ArrayList<Wall> walls){
+		pushDown = true;
+		move(walls);
+	}
+	public void pushUp(ArrayList<Wall> walls){
+		pushUp = true;
+		move(walls);
+	}
+	
+	private void move(ArrayList<Wall> walls){
 		xVelocity = 0;
 		yVelocity = 0;
-		updateRectangles();
 		if(pushUp){
 			yVelocity = moveSpeed;
 		}
@@ -56,20 +75,27 @@ public class TopBox extends Wall{
 		
 		x += xVelocity;
 		y += yVelocity;
+		
+		updateRectangles();
 	}
 
 	private void updateRectangles(){
 		bounding = new Rectangle(x, y, width, height);
 
 		//top is sort of bottom here because awt and opengl coordinate systems / rectangle origins
-		rightCollisionRect = new Rectangle((int)(x + bounding.getWidth()), y, moveSpeed, (int)bounding.getHeight());
-		leftCollisionRect = new Rectangle(x - moveSpeed, y, moveSpeed, (int)bounding.getHeight());
-		topCollisionRect = new Rectangle(x, y - moveSpeed, (int)bounding.getWidth(), moveSpeed);
-		bottomCollisionRect = new Rectangle(x, (int)(y + bounding.getHeight()), (int)bounding.getWidth(), moveSpeed);
-		topLeftCR = new Rectangle((int)(x - moveSpeed), (int)(y - moveSpeed), moveSpeed, moveSpeed);
-		topRightCR = new Rectangle((int)(x + bounding.getWidth()), y - moveSpeed, moveSpeed, moveSpeed);
-		bottomLeftCR = new Rectangle(x - moveSpeed, (int)(y + bounding.getHeight()), moveSpeed, moveSpeed);
-		bottomRightCR = new Rectangle((int)(x + bounding.getWidth()), (int)(y + bounding.getHeight()), moveSpeed, moveSpeed);
+		rightCollisionRect = new Rectangle(x + width, y, moveSpeed, height);
+		leftCollisionRect = new Rectangle(x - moveSpeed, y, moveSpeed, height);
+		topCollisionRect = new Rectangle(x, y - moveSpeed, width, moveSpeed);
+		bottomCollisionRect = new Rectangle(x, y + height, width, moveSpeed);
+		topLeftCR = new Rectangle(x - moveSpeed, y - moveSpeed, moveSpeed, moveSpeed);
+		topRightCR = new Rectangle(x + width, y - moveSpeed, moveSpeed, moveSpeed);
+		bottomLeftCR = new Rectangle(x - moveSpeed, y + height, moveSpeed, moveSpeed);
+		bottomRightCR = new Rectangle(x + width, y + height, moveSpeed, moveSpeed);
+		
+		topPushRect = new Rectangle(x, y, width, 1);
+		bottomPushRect = new Rectangle(x, y + height - 1, width, 1);
+		leftPushRect = new Rectangle(x, y , 1, height);
+		rightPushRect = new Rectangle(x + width - 1, y, 1, height);
 	}
 
 	private void collisionDetection(ArrayList<Wall> walls){
@@ -189,14 +215,16 @@ public class TopBox extends Wall{
 	
 	public int getX(){ return x; }
 	public int getY(){ return y; }
+
 	
-	public void pushLeft(){ pushLeft = true; }
-	public void pushRight(){ pushRight = true; }
-	public void pushDown(){ pushDown = true; }
-	public void pushUp(){ pushUp = true; }
+	public Rectangle getLeftRect(){ return leftPushRect; }
+	public Rectangle getRightRect(){ return rightPushRect; }
+	public Rectangle getTopRect(){ return topPushRect; }
+	public Rectangle getBottomRect(){ return bottomPushRect; }
 	
-	public Rectangle getLeftRect(){ return leftCollisionRect; }
-	public Rectangle getRightRect(){ return rightCollisionRect; }
-	public Rectangle getTopRect(){ return topCollisionRect; }
-	public Rectangle getBottomRect(){ return bottomCollisionRect; }
+	public void setPosition(int boxX, int boxY){
+		x = boxX;
+		y = boxY;
+		updateRectangles();
+	}
 }
