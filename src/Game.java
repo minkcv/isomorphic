@@ -161,4 +161,5 @@ public class Game {
 
 	}
 	public boolean playerOnGround(){ return player.onGround(); }
+	public void setBackgroundColor(){ world.setBackgroundColor(); }
 }

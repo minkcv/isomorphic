@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 
+import org.lwjgl.opengl.GL11;
+
 //import org.newdawn.slick.Color;
 
 
@@ -13,6 +15,7 @@ public class World {
 	private Game game;
 	private Cube[][][] cubes;
 	private Light light;
+	private float[] backgroundRGB;
 	public static final int CUBE_SIZE = 10;
 	private static int worldSizeX;
 	private static int worldSizeY;
@@ -37,6 +40,7 @@ public class World {
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
 		activeObjects = new ArrayList<ActiveObject>();
+		backgroundRGB = new float[3];
 	}
 
 	public void loadWorld(int worldNumber){
@@ -48,11 +52,15 @@ public class World {
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
 		activeObjects = new ArrayList<ActiveObject>();
-		Scanner sizeFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/size.txt"));
-		worldSizeX = sizeFile.nextInt();
-		worldSizeY = sizeFile.nextInt();
-		worldSizeZ = sizeFile.nextInt();
-		sizeFile.close();
+		backgroundRGB = new float[3];
+		Scanner worldFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/world.txt"));
+		worldSizeX = worldFile.nextInt();
+		worldSizeY = worldFile.nextInt();
+		worldSizeZ = worldFile.nextInt();
+		backgroundRGB[0] = worldFile.nextFloat();
+		backgroundRGB[1] = worldFile.nextFloat();
+		backgroundRGB[2] = worldFile.nextFloat();
+		worldFile.close();
 		cubes = new Cube[worldSizeX][worldSizeY][worldSizeZ];
 		for(int y = 0; y < worldSizeY; y++){
 			try {
@@ -396,9 +404,11 @@ public class World {
 	public ArrayList<SideBox> getXYBoxes(){
 		return xyBoxes;
 	}
+	public float[] getBackgroundRGB(){ return backgroundRGB; }
 
 	public static int getSizeX(){ return worldSizeX; }
 	public static int getSizeY(){ return worldSizeY; }
 	public static int getSizeZ(){ return worldSizeZ; }
 	public int getWorldID(){ return worldID; }
+	public void setBackgroundColor(){ GL11.glClearColor(backgroundRGB[0], backgroundRGB[1], backgroundRGB[2], 0.0f); }
 }

@@ -78,12 +78,24 @@ public class Main {
 	
 	public void startNewGame(){
 		game = new Game(this, false);
+		game.setBackgroundColor();
 		onMenu = false;
 	}
 	
 	public void startExistingGame(){
 		game = new Game(this, true);
+		game.setBackgroundColor();
 		onMenu = false;
+	}
+	
+	public void resumeGame(){
+		onMenu = false;
+		game.setBackgroundColor();
+	}
+	
+	private void pauseGame(){
+		onMenu = true;
+		menu.setBackgroundColor();
 	}
 
 	private void update(int delta){
@@ -110,8 +122,9 @@ public class Main {
 		}
 		else{
 			if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
-				if(escapeReleased)
-					onMenu = true;
+				if(escapeReleased){
+					pauseGame();
+				}
 				escapeReleased = false;
 			}
 			else{
@@ -171,9 +184,5 @@ public class Main {
 		}
 		else
 			return true;
-	}
-
-	public void setOnMenu(boolean onMenu){
-		this.onMenu = onMenu;
 	}
 }
