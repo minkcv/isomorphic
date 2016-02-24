@@ -1,53 +1,62 @@
 package gui;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Message {
 	private String text;
-	private int charIndex = 0;
+	private int charIndex = 0; // for current line
 	private int currentLine = 0;
 	private boolean finished;
 	private int maxCharsPerLine;
-	private int numLines;
 	private ArrayList<String> brokenText; // broken up based on where newlines should go
 	public Message(String text, int maxCharsPerLine){
 		this.text = text;
 		this.maxCharsPerLine = maxCharsPerLine;
-		this.maxCharsPerLine = maxCharsPerLine;
 		brokenText = new ArrayList<String>();
-		numLines = 0;
-		int i; //TODO wrap text at spaces
-		for(i = 0; i + maxCharsPerLine < text.length(); i += maxCharsPerLine){
-			brokenText.add(new String(text.substring(i, i + maxCharsPerLine)));
+
+		Scanner s = new Scanner(text);
+		int buildingLine = 0;
+		brokenText.add("");
+		while(s.hasNext()){
+			String word = s.next();
+			if(brokenText.get(buildingLine).length() + word.length() > maxCharsPerLine){ // should insert newline
+				//add padding of spaces on right to meet maxCharsPerLine
+				//brokenText.set(buildingLine, brokenText.get(buildingLine) + String.format("%" + word.length() + "s", " "));
+				buildingLine++;
+				brokenText.add("");
+			}
+			brokenText.set(buildingLine, brokenText.get(buildingLine) + word + " ");
 		}
-		if(text.length() % maxCharsPerLine != 0)
-			brokenText.add(new String(text.substring(i, text.length())));
 	}
 
 	public void advanceText(){
-		if(charIndex < text.length()){
-			charIndex++;
-			currentLine = charIndex / maxCharsPerLine;
+		if(currentLine == brokenText.size() - 1 && charIndex >= brokenText.get(brokenText.size() - 1).length()){
+			finished = true;
 		}
 		else{
-			finished = true;
+			charIndex++;
+			if(charIndex > brokenText.get(currentLine).length()){
+				currentLine++;
+				charIndex = 0;
+			}
 		}
 	}
 
 	public String[] getCurrentText(){
 		String[] textLines = {"", "", ""};
 		if(currentLine == 0){
-			textLines[0] = text.substring(0, charIndex);
+			textLines[0] = brokenText.get(0).substring(0, charIndex);
 		}
 		else if(currentLine == 1){
 			textLines[0] = brokenText.get(0);
-			textLines[1] = brokenText.get(1).substring(0, charIndex % maxCharsPerLine);
+			textLines[1] = brokenText.get(1).substring(0, charIndex);
 		}
 		else{
 			for (int i = 0; i < textLines.length; i++) {
 				textLines[0] = brokenText.get(currentLine - 2);
 				textLines[1] = brokenText.get(currentLine - 1);
-				textLines[2] = brokenText.get(currentLine).substring(0, charIndex % maxCharsPerLine);
+				textLines[2] = brokenText.get(currentLine).substring(0, charIndex);
 			}
 		}
 		return textLines;
