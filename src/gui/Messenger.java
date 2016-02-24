@@ -24,7 +24,7 @@ public class Messenger {
 	private boolean active;
 	public Messenger(){
 		messages = new ArrayList<Message>();
-		messages.add(new Message("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123asdfasdfasdf", maxCharsPerLine));
+		messages.add(new Message("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123asdfasdfasdfasdfasdfasdfasdfjlkjkl;jl;kjl;kjl;kj", maxCharsPerLine));
 		activeMessage = messages.get(0);
 	}
 
@@ -67,9 +67,9 @@ public class Messenger {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
 		
-//		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding, activeMessage.getCurrentText()[0], Color.white);
-//		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize, activeMessage.getCurrentText()[1], Color.white);
-//		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize, activeMessage.getCurrentText()[2], Color.white);
+		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding, activeMessage.getCurrentText()[0], Color.white);
+		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize, activeMessage.getCurrentText()[1], Color.white);
+		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize * 2, activeMessage.getCurrentText()[2], Color.white);
 	}
 	
 	public void activate(){
