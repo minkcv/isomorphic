@@ -1,7 +1,8 @@
+package game;
 import org.lwjgl.opengl.GL11;
 
 
-public class Box extends Cube implements ActiveObject{
+public class Box extends Cube implements ActiveObject {
 	private TopBox topBox;
 	private SideBox sideBox;
 	private Camera.Direction previousDirection;

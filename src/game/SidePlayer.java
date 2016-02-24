@@ -1,3 +1,4 @@
+package game;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import org.lwjgl.input.Keyboard;
@@ -119,13 +120,13 @@ public class SidePlayer {
 	
 	private void boxCollisions(ArrayList<SideBox> boxes, ArrayList<Wall> walls, boolean zSide){
 		for(SideBox b : boxes){
-			if(leftPushRect.intersects(b.getRightRect()) && xVelocity > 0){
+			if(leftPushRect.intersects(b.getRightRect())){// && xVelocity > 0){
 				if(b.isZSide())
 					b.pushRight(walls, zSide);
 				else
 					b.pushLeft(walls, zSide);
 			}
-			else if(rightPushRect.intersects(b.getLeftRect()) && xVelocity < 0){
+			else if(rightPushRect.intersects(b.getLeftRect())){// && xVelocity < 0){
 				if(b.isZSide())
 					b.pushLeft(walls, zSide);
 				else

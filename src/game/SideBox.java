@@ -1,16 +1,13 @@
+package game;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
 
 public class SideBox extends Wall{
 	private Rectangle topRectangle;
-	private Rectangle topLeftRectangle;
-	private Rectangle topRightRectangle;
 	private Rectangle leftRectangle;
 	private Rectangle rightRectangle;
 	private Rectangle bottomRectangle;
-	private Rectangle bottomLeftRectangle;
-	private Rectangle bottomRightRectangle;
 	private Rectangle belowPlayersFeetRectangle;
 
 	private Rectangle leftPushRect;
@@ -18,7 +15,6 @@ public class SideBox extends Wall{
 
 	private int xMoveSpeed = 1;
 	private int xVelocity, yVelocity;
-	private int jumpSpeed;
 	private int fallFactor; // lower value falls faster
 	private double fallingTime; // how long the box has been falling
 	private int maxFallSpeed;
@@ -36,10 +32,10 @@ public class SideBox extends Wall{
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		jumpSpeed = 2;
 		maxFallSpeed = -4;
 		fallFactor = normalFallFactor;
-		updateRectangles();
+		updateVerticalRectangles();
+		updateHorizontalRectangles();
 	}
 
 	/*
@@ -79,12 +75,13 @@ public class SideBox extends Wall{
 			}
 		}
 
-		updateRectangles();
+		updateVerticalRectangles();
 		verticalCollisionDetection(walls);
 
 		y += yVelocity;
 	}
 
+	//to be called by push methods
 	private void move(ArrayList<Wall> walls, boolean zSide){
 		if(pushLeft){
 			if(zSide)
@@ -109,7 +106,6 @@ public class SideBox extends Wall{
 		boolean leftCollides = false;
 
 		for(Wall w : walls){
-
 			//horizontal
 			if(leftRectangle.intersects(w.getBounding())){
 				leftCollides = true;
@@ -125,27 +121,30 @@ public class SideBox extends Wall{
 		}
 
 		if(rightCollides && xVelocity < 0){
-			xVelocity = 0;			
+			xVelocity = 0;
 		}
 
 		x += xVelocity;
-		
-		updateRectangles();
+		updateHorizontalRectangles();
 	}
-
-	public void updateRectangles(){
-		// AWT Rectangles have different origin specification than opengl
-		topRectangle = new Rectangle(x, y + (Math.abs(yVelocity) + height), width, Math.abs(yVelocity));
-		topLeftRectangle = new Rectangle(x - xMoveSpeed, y + (Math.abs(yVelocity) - height), xMoveSpeed, Math.abs(yVelocity));
-		topRightRectangle = new Rectangle(x + width, y + (Math.abs(yVelocity) + height), xMoveSpeed, Math.abs(yVelocity));
+	
+	private void updateHorizontalRectangles(){
+		bounding = new Rectangle(x, y, width, height);
+		leftPushRect = new Rectangle(x + width - xMoveSpeed, y, xMoveSpeed, height);
+		rightPushRect = new Rectangle(x, y, xMoveSpeed, height);		
 		leftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), xMoveSpeed, height + Math.abs(yVelocity));
 		rightRectangle = new Rectangle(x - xMoveSpeed, y - Math.abs(yVelocity), xMoveSpeed, height + Math.abs(yVelocity));
-		bottomLeftRectangle = new Rectangle(x + width, y - Math.abs(yVelocity), xMoveSpeed, Math.abs(yVelocity));
-		bottomRightRectangle = new Rectangle(x - xMoveSpeed, y - Math.abs(yVelocity), xMoveSpeed, Math.abs(yVelocity));
+	}
+
+	private void updateVerticalRectangles(){
+		// AWT Rectangles have different origin specification than opengl
+		topRectangle = new Rectangle(x, y + (Math.abs(yVelocity) + height), width, Math.abs(yVelocity));
 		bottomRectangle = new Rectangle(x, y - Math.abs(yVelocity), width, Math.abs(yVelocity));
-		
-		leftPushRect = new Rectangle(x + width - xMoveSpeed, y, xMoveSpeed, height);
-		rightPushRect = new Rectangle(x, y, xMoveSpeed, height);
+	}
+	
+	public void updateRectangles(){
+		updateHorizontalRectangles();
+		updateVerticalRectangles();
 	}
 
 	private void verticalCollisionDetection(ArrayList<Wall> walls){

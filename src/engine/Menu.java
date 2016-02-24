@@ -1,3 +1,4 @@
+package engine;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -18,7 +19,7 @@ public class Menu {
 		if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)){
 			if(enterReleased){
 				if(gameInProgress){
-					main.setOnMenu(false);
+					main.resumeGame();
 				}
 				else {
 					if(saveExists){
@@ -67,4 +68,5 @@ public class Menu {
 	}
 	
 	public boolean isGameInProgress(){ return gameInProgress; }
+	public void setBackgroundColor(){ GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); }
 }

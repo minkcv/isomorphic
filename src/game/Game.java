@@ -1,3 +1,8 @@
+package game;
+import engine.Main;
+import engine.Util;
+import gui.Messenger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,11 +22,14 @@ public class Game {
 	private float minZoom = 5;
 	private float maxZoom = 20;
 	private Axes3D axes;
+	private Messenger messenger;
 	public Game(Main main, boolean loadSave){
 		this.main = main;
 		camera = new Camera(this);
 		axes = new Axes3D(10);
 		world = new World(this);
+		messenger = new Messenger();
+		messenger.activate();
 		if(loadSave){
 			loadGame();
 		}
@@ -41,6 +49,7 @@ public class Game {
 		else{
 			world.update(camera.getDirection());
 		}
+		messenger.update();
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
 		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
 			world.cullCubes(player.getX(), player.getY(), player.getZ(), scale + World.CUBE_SIZE);
@@ -55,7 +64,7 @@ public class Game {
 	}
 
 	public void render(){
-		GL11.glDisable(GL11.GL_TEXTURE_2D);  
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(-scale, scale, -scale, scale, scale * 2, -scale * 2);
@@ -68,9 +77,14 @@ public class Game {
 		world.render(camera.getDirection());
 
 		camera.undoTransform();
+		
 		GL11.glTranslatef(15 - scale, 15 - scale, -scale);
 		camera.rotateToCamera();
 		axes.render();
+		camera.undoRotate();
+		GL11.glTranslatef(-(15 - scale), -(15 - scale), scale);
+		
+		messenger.render();
 	}
 
 	public void usePortalOrSave(int playerX, int playerY, int playerZ){
@@ -161,4 +175,5 @@ public class Game {
 
 	}
 	public boolean playerOnGround(){ return player.onGround(); }
+	public void setBackgroundColor(){ world.setBackgroundColor(); }
 }
