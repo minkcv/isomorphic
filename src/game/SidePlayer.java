@@ -220,6 +220,10 @@ public class SidePlayer {
 			yVelocity = partialJumpDistance;
 		}
 	}
+	
+	public boolean intersects(Rectangle r){
+		return bounding.intersects(r);
+	}
 
 	public int getX(){ return x; }
 	public int getY(){ return y; }

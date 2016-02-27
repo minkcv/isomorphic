@@ -7,40 +7,74 @@ public class Message {
 	private String text;
 	private int charIndex = 0; // for current line
 	private int currentLine = 0;
+	private int linesUntilAdvance = 3;
 	private boolean finished;
-	private int maxCharsPerLine;
+	private boolean dismissed;
+	private boolean waitForAdvance;
+	private final static int maxCharsPerLine = 40; // assuming 32pt monospace font, text padding 16, left/right margin 5, 800 screen width
 	private ArrayList<String> brokenText; // broken up based on where newlines should go
-	public Message(String text, int maxCharsPerLine){
+	public Message(String text){
 		this.text = text;
-		this.maxCharsPerLine = maxCharsPerLine;
 		brokenText = new ArrayList<String>();
 
+		// break the text on spaces with maxCharsPerLine
 		Scanner s = new Scanner(text);
 		int buildingLine = 0;
 		brokenText.add("");
 		while(s.hasNext()){
 			String word = s.next();
 			if(brokenText.get(buildingLine).length() + word.length() > maxCharsPerLine){ // should insert newline
-				//add padding of spaces on right to meet maxCharsPerLine
-				//brokenText.set(buildingLine, brokenText.get(buildingLine) + String.format("%" + word.length() + "s", " "));
 				buildingLine++;
 				brokenText.add("");
 			}
 			brokenText.set(buildingLine, brokenText.get(buildingLine) + word + " ");
 		}
+		s.close();
 	}
 
+	// advance a character and stop at linesUntilAdvance
 	public void advanceText(){
 		if(currentLine == brokenText.size() - 1 && charIndex >= brokenText.get(brokenText.size() - 1).length()){
 			finished = true;
 		}
-		else{
-			charIndex++;
-			if(charIndex > brokenText.get(currentLine).length()){
-				currentLine++;
-				charIndex = 0;
+		if(!finished && linesUntilAdvance > 0){
+			if(charIndex >= brokenText.get(currentLine).length()){
+				linesUntilAdvance--;
+				if(linesUntilAdvance > 0){
+					currentLine++;
+					charIndex = 0;
+				}
+			}
+			else{
+				charIndex++;
 			}
 		}
+		else if(linesUntilAdvance <= 0){
+			waitForAdvance = true;
+		}
+	}
+
+	// advance a few lines
+	public void advanceLine(){
+		if(brokenText.size() > 2){
+			linesUntilAdvance = 3;
+		}
+		else if(brokenText.size() == 2){
+			linesUntilAdvance = 2;
+		}
+		else{
+			linesUntilAdvance = 1;
+		}
+		waitForAdvance = false;
+	}
+
+	// reset markers so the message can be read again
+	public void reset(){
+		finished = false;
+		dismissed = false;
+		charIndex = 0;
+		currentLine = 0;
+		linesUntilAdvance = 3;
 	}
 
 	public String[] getCurrentText(){
@@ -62,4 +96,7 @@ public class Message {
 		return textLines;
 	}
 	public boolean isFinished(){ return finished; }
+	public boolean isDismissed(){ return dismissed; }
+	public void dismiss(){ dismissed = true; }
+	public boolean isWaitingForAdvance(){ return waitForAdvance; }
 }

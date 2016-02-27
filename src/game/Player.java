@@ -1,4 +1,8 @@
 package game;
+import java.util.ArrayList;
+
+import gui.Message;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -10,6 +14,8 @@ public class Player {
 	private SidePlayer sidePlayer;
 	private boolean eReleased;
 	private boolean onGround;
+	private Message currentMessage;
+	private boolean readingMessage;
 	public Player(Game game, float x, float y, float z){
 		this.game = game;
 		this.x = x;
@@ -18,40 +24,54 @@ public class Player {
 		width = World.CUBE_SIZE;
 		height = World.CUBE_SIZE * 2;
 		depth = World.CUBE_SIZE;
-		
+
 		topPlayer = new TopPlayer((int)x, (int)z, (int)width, (int)depth);
 		sidePlayer = new SidePlayer((int)z, (int)y, (int)width, (int)height);
 	}
-	
+
 	public void update(Camera.Direction direction, World world){
-		if(direction == Camera.Direction.X){
-			sidePlayer.update(world.getYZWalls(), world.getYZBoxes(), (int)z, (int)y, false);
-			z = sidePlayer.getX();
-			y = sidePlayer.getY();
-			onGround = sidePlayer.onGround();
-		}
-		else if(direction == Camera.Direction.Y){
-			topPlayer.update(world.getXZWalls(), world.getXZBoxes(), (int)x, (int)z);
-			x = topPlayer.getX();
-			z = topPlayer.getY();
-		}
-		else if(direction == Camera.Direction.Z){
-			sidePlayer.update(world.getXYWalls(), world.getXYBoxes(), (int)x, (int)y, true);
-			x = sidePlayer.getX();
-			y = sidePlayer.getY();
-			onGround = sidePlayer.onGround();
-		}
 		
+		if(! readingMessage){
+			if(direction == Camera.Direction.X){
+				sidePlayer.update(world.getYZWalls(), world.getYZBoxes(), (int)z, (int)y, false);
+				z = sidePlayer.getX();
+				y = sidePlayer.getY();
+				onGround = sidePlayer.onGround();
+			}
+			else if(direction == Camera.Direction.Y){
+				topPlayer.update(world.getXZWalls(), world.getXZBoxes(), (int)x, (int)z);
+				x = topPlayer.getX();
+				z = topPlayer.getY();
+			}
+			else if(direction == Camera.Direction.Z){
+				sidePlayer.update(world.getXYWalls(), world.getXYBoxes(), (int)x, (int)y, true);
+				x = sidePlayer.getX();
+				y = sidePlayer.getY();
+				onGround = sidePlayer.onGround();
+			}
+		}
+
 		if(Keyboard.isKeyDown(Keyboard.KEY_E)){
 			if(eReleased){
 				game.usePortalOrSave((int)x, (int)y, (int)z);
+				Message newMessage = onSign(world.getSignsInPlane(), direction);
+				if(!readingMessage && newMessage != null){
+					currentMessage = newMessage;
+					currentMessage.reset();
+					game.readMessage(currentMessage);
+					readingMessage = true;
+				}
+				else if(currentMessage != null && currentMessage.isFinished()){
+					currentMessage.dismiss();
+					readingMessage = false;
+				}
 			}
 			eReleased = false;
 		}
 		else{
 			eReleased = true;
 		}
-		
+
 		// keep player in world bounds
 		if(x < 0)
 			x = 0;
@@ -65,9 +85,9 @@ public class Player {
 			y = World.getSizeY() * World.CUBE_SIZE - World.CUBE_SIZE;
 		if(z > World.getSizeZ() * World.CUBE_SIZE - World.CUBE_SIZE)
 			z = World.getSizeZ() * World.CUBE_SIZE - World.CUBE_SIZE;
-		
+
 	}
-	
+
 	public void alignPosition(){
 		if(x % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
 			x += World.CUBE_SIZE - (x % World.CUBE_SIZE);
@@ -75,14 +95,14 @@ public class Player {
 		else if(x % World.CUBE_SIZE < World.CUBE_SIZE / 2){
 			x -= x % World.CUBE_SIZE;
 		}
-		
+
 		if(y % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
 			y += World.CUBE_SIZE - (y % World.CUBE_SIZE);
 		}
 		else if(y % World.CUBE_SIZE < World.CUBE_SIZE / 2){
 			y -= y % World.CUBE_SIZE;
 		}
-		
+
 		if(z % World.CUBE_SIZE >= World.CUBE_SIZE / 2){
 			z += World.CUBE_SIZE - (z % World.CUBE_SIZE);
 		}
@@ -90,7 +110,7 @@ public class Player {
 			z -= z % World.CUBE_SIZE;
 		}
 	}
-	
+
 	public void render(){
 		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
@@ -150,17 +170,40 @@ public class Player {
 		GL11.glEnd();
 		GL11.glTranslatef(-x, -y, -z);
 	}
-	
+
+	private Message onSign(ArrayList<Sign> signs, Camera.Direction direction){
+		if(direction == Camera.Direction.Y){ // top
+			for(Sign s : signs){
+				if(topPlayer.intersects(s.getTopSign().getLeftRectangle()) || 
+						topPlayer.intersects(s.getTopSign().getRightRectangle()) ||
+						topPlayer.intersects(s.getTopSign().getTopRectangle()) ||
+						topPlayer.intersects(s.getTopSign().getBottomRectangle())){
+					return s.getMessage();
+				}
+			}
+		}
+		else if(direction == Camera.Direction.X || direction == Camera.Direction.Z){ // side
+			for(Sign s : signs){
+				if(sidePlayer.intersects(s.getSideSign().getLeftRectangle()) || 
+						sidePlayer.intersects(s.getSideSign().getRightRectangle())){
+					return s.getMessage();
+				}
+			}
+		}
+		return null;
+	}
+
 	public float getX(){ return x; }
 	public float getY(){ return y; }
 	public float getZ(){ return z; }
-	
+
 	public int getGridX(){ return (int)x / World.CUBE_SIZE; }
 	public int getGridY(){ return (int)y / World.CUBE_SIZE; }
 	public int getGridZ(){ return (int)z / World.CUBE_SIZE; }
 	
-	public boolean onGround(){ return onGround; }
-	
+	public boolean isReadingMessage(){ return readingMessage; }
+	public boolean isOnGround(){ return onGround; }
+
 	public void setPosition(float x, float y, float z){
 		this.x = x;
 		this.y = y;

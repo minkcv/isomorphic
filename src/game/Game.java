@@ -1,6 +1,7 @@
 package game;
 import engine.Main;
 import engine.Util;
+import gui.Message;
 import gui.Messenger;
 
 import java.io.File;
@@ -29,7 +30,6 @@ public class Game {
 		axes = new Axes3D(10);
 		world = new World(this);
 		messenger = new Messenger();
-		messenger.activate();
 		if(loadSave){
 			loadGame();
 		}
@@ -50,6 +50,7 @@ public class Game {
 			world.update(camera.getDirection());
 		}
 		messenger.update();
+		
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
 		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
 			world.cullCubes(player.getX(), player.getY(), player.getZ(), scale + World.CUBE_SIZE);
@@ -84,7 +85,8 @@ public class Game {
 		camera.undoRotate();
 		GL11.glTranslatef(-(15 - scale), -(15 - scale), scale);
 		
-		messenger.render();
+		if(messenger.isActive())
+			messenger.render();
 	}
 
 	public void usePortalOrSave(int playerX, int playerY, int playerZ){
@@ -100,7 +102,7 @@ public class Game {
 			world.loadWorld(destWorld);
 			int[] portalPosition = world.getPositionOfPortal(destID);
 			player.setPosition(portalPosition[0] * World.CUBE_SIZE, portalPosition[1] * World.CUBE_SIZE, portalPosition[2] * World.CUBE_SIZE);
-			
+			return;
 		}
 	}
 
@@ -153,6 +155,11 @@ public class Game {
 			e.printStackTrace();
 		}
 	}
+	
+	public void readMessage(Message msg){
+		messenger.setActiveMessage(msg);
+		messenger.activate();
+	}
 
 	public float[] getPlayerPosition(){
 		float[] pos = {player.getX(), player.getY(), player.getZ()};
@@ -170,10 +177,8 @@ public class Game {
 	public void computeObjectsInPlane(Camera.Direction direction){
 		world.computeObjectsInPlane(direction, player.getGridX(), player.getGridY(), player.getGridZ());
 	}
-
-	public void createWalls(Camera.Direction direction){
-
-	}
-	public boolean playerOnGround(){ return player.onGround(); }
+	
+	public boolean playerOnGround(){ return player.isOnGround(); }
+	public boolean playerReadingMessage(){ return player.isReadingMessage(); }
 	public void setBackgroundColor(){ world.setBackgroundColor(); }
 }

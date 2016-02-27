@@ -1,4 +1,6 @@
 package game;
+import gui.Message;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,6 +30,7 @@ public class World {
 	private ArrayList<SideBox> xyBoxes;
 	private ArrayList<SideBox> yzBoxes;
 	private ArrayList<TopBox>  xzBoxes;
+	private ArrayList<Sign> signsInPlane;
 	private int worldID;
 
 	// does not load a world
@@ -101,6 +104,11 @@ public class World {
 							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, // width, height, depth
 							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat())); // red green blue
 					break;
+				case "sign":
+					activeObjects.add(new Sign(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
+							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
+							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextLine()));
+					break;
 				}
 			}
 		}
@@ -119,7 +127,8 @@ public class World {
 		}
 	}
 
-	//xyz: player grid position
+	// xyz: player grid position
+	// updates the walls, boxes, and signs lists in the players plane
 	public void computeObjectsInPlane(Camera.Direction direction, int x, int y, int z){
 		if(direction == Camera.Direction.X){ // side
 			yzWalls = new ArrayList<Wall>();
@@ -138,12 +147,29 @@ public class World {
 					}
 				}
 			}
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Sign){
+					Sign s = (Sign)a;
+					if(s.getX() / CUBE_SIZE == x){
+						yzWalls.add(s.getSideSign());
+					}
+				}
+			}
 			yzBoxes = new ArrayList<SideBox>();
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
 					if(b.getX() / CUBE_SIZE == x){
 						yzBoxes.add(b.getSideBox());
+					}
+				}
+			}
+			signsInPlane = new ArrayList<Sign>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Sign){
+					Sign s = (Sign)a;
+					if(s.getX() / CUBE_SIZE == x){
+						signsInPlane.add(s);
 					}
 				}
 			}
@@ -169,12 +195,29 @@ public class World {
 					}
 				}
 			}
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Sign){
+					Sign s = (Sign)a;
+					if(s.getY() / CUBE_SIZE == y){
+						xzWalls.add(s.getTopSign());
+					}
+				}
+			}
 			xzBoxes = new ArrayList<TopBox>();
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
 					if(b.getY() / CUBE_SIZE == y){
 						xzBoxes.add(b.getTopBox());
+					}
+				}
+			}
+			signsInPlane = new ArrayList<Sign>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Sign){
+					Sign s = (Sign)a;
+					if(s.getY() / CUBE_SIZE == y){
+						signsInPlane.add(s);
 					}
 				}
 			}
@@ -196,12 +239,29 @@ public class World {
 					}
 				}
 			}
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Sign){
+					Sign s = (Sign)a;
+					if(s.getZ() / CUBE_SIZE == z){
+						xyWalls.add(s.getSideSign());
+					}
+				}
+			}
 			xyBoxes = new ArrayList<SideBox>();
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
 					if(b.getZ() / CUBE_SIZE == z){
 						xyBoxes.add(b.getSideBox());
+					}
+				}
+			}
+			signsInPlane = new ArrayList<Sign>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Sign){
+					Sign s = (Sign)a;
+					if(s.getZ() / CUBE_SIZE == z){
+						signsInPlane.add(s);
 					}
 				}
 			}
@@ -404,6 +464,9 @@ public class World {
 	}
 	public ArrayList<SideBox> getXYBoxes(){
 		return xyBoxes;
+	}
+	public ArrayList<Sign> getSignsInPlane(){
+		return signsInPlane;
 	}
 	public float[] getBackgroundRGB(){ return backgroundRGB; }
 

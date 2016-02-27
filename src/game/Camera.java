@@ -28,7 +28,7 @@ public class Camera {
 	}
 
 	public void update(){
-		if(game.playerOnGround()){
+		if(game.playerOnGround() && ! game.playerReadingMessage()){
 			if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
 				if(downReleased && direction != Direction.ISO){
 					direction = Direction.ISO;

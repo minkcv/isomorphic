@@ -1,7 +1,7 @@
 package game;
 import java.awt.Rectangle;
 
-
+// a side and top object
 public class Wall {
 	protected int x, y, width, height;
 	protected Rectangle bounding;

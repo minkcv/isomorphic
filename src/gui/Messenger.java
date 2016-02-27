@@ -1,13 +1,12 @@
 package gui;
 
-import java.util.ArrayList;
-
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
-
 import engine.GameFonts;
 import engine.Main;
 
+// manager class for on screen dialogue messages
 // uses xy left top coordinate system
 public class Messenger {
 	private float leftMargin = 5;
@@ -16,23 +15,34 @@ public class Messenger {
 	private float topMargin = 600;
 	private float textPadding = 16;
 	private long printSpeed = 75; // milliseconds between chars
-	private int maxCharsPerLine = 40; // assuming 32pt monospace font, text padding 16, left/right margin 5, 800 screen width
 	private int fontSize = 32;
 	private long lastPrintTime;
-	private ArrayList<Message> messages;
 	private Message activeMessage;
 	private boolean active;
+	private boolean eReleased;
 	public Messenger(){
-		messages = new ArrayList<Message>();
-		messages.add(new Message("The quick brown fox jumps over the really lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum", maxCharsPerLine));
-		activeMessage = messages.get(0);
+
 	}
 
 	public void update(){
 		if(active){
-			if(System.currentTimeMillis() - lastPrintTime > printSpeed){
+			if(activeMessage.isWaitingForAdvance()){
+				if(Keyboard.isKeyDown(Keyboard.KEY_E)){
+					if(eReleased){
+						activeMessage.advanceLine();
+					}
+					eReleased = false;
+				}
+				else{
+					eReleased = true;
+				}
+			}
+			if(! activeMessage.isFinished() && System.currentTimeMillis() - lastPrintTime > printSpeed){
 				lastPrintTime = System.currentTimeMillis();
 				activeMessage.advanceText();
+			}
+			if(activeMessage.isDismissed()){
+				active = false;
 			}
 		}
 	}
@@ -66,15 +76,20 @@ public class Messenger {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
-		
+
 		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding, activeMessage.getCurrentText()[0], Color.white);
 		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize, activeMessage.getCurrentText()[1], Color.white);
 		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize * 2, activeMessage.getCurrentText()[2], Color.white);
 	}
-	
+
+	public void setActiveMessage(Message msg){
+		activeMessage = msg;
+	}
+
 	public void activate(){
 		active = true;
 		lastPrintTime = System.currentTimeMillis();
 	}
 	public void deactivate(){ active = false; }
+	public boolean isActive(){ return active; }
 }

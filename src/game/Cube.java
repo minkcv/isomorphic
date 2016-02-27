@@ -30,8 +30,7 @@ public class Cube {
 			GL11.glBegin(GL11.GL_QUADS);
 			{
 				GL11.glColor3f(r - shade, g - shade, b - shade);
-
-
+				
 				GL11.glNormal3f(0, 0, -1);
 				GL11.glVertex3f(0, 0, 0);
 				GL11.glVertex3f(0, height, 0);
