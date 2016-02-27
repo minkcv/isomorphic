@@ -80,6 +80,9 @@ public class Messenger {
 		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding, activeMessage.getCurrentText()[0], Color.white);
 		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize, activeMessage.getCurrentText()[1], Color.white);
 		GameFonts.courierFont32pt.drawString(leftMargin + textPadding, topMargin + textPadding + fontSize * 2, activeMessage.getCurrentText()[2], Color.white);
+		if(activeMessage.isWaitingForAdvance() || activeMessage.isFinished()){
+			GameFonts.courierFont20pt.drawString(Main.WIDTH - (2 * rightMargin + textPadding + 20), Main.HEIGHT - (2 * bottomMargin + textPadding), "[E]");
+		}
 	}
 
 	public void setActiveMessage(Message msg){
