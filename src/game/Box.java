@@ -137,4 +137,10 @@ public class Box extends Cube implements ActiveObject {
 	public float getX(){ return x; }
 	public float getY(){ return y; }
 	public float getZ(){ return z; }
+	@Override
+	public int getGridX() { return (int)x / World.CUBE_SIZE; }
+	@Override
+	public int getGridY() { return (int)y / World.CUBE_SIZE; }
+	@Override
+	public int getGridZ() { return (int)z / World.CUBE_SIZE; }
 }

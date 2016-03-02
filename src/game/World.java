@@ -106,7 +106,7 @@ public class World {
 					break;
 				case "sign":
 					activeObjects.add(new Sign(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
-							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
+							CUBE_SIZE, CUBE_SIZE * 2, CUBE_SIZE, // width, height, depth
 							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextLine()));
 					break;
 				}
@@ -142,7 +142,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
-					if(b.getX() / CUBE_SIZE == x){
+					if(b.getGridX() == x){
 						yzWalls.add(b.getSideBox());
 					}
 				}
@@ -150,7 +150,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
-					if(s.getX() / CUBE_SIZE == x){
+					if(s.getGridX() == x){
 						yzWalls.add(s.getSideSign());
 					}
 				}
@@ -159,7 +159,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
-					if(b.getX() / CUBE_SIZE == x){
+					if(b.getGridX() == x){
 						yzBoxes.add(b.getSideBox());
 					}
 				}
@@ -168,7 +168,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
-					if(s.getX() / CUBE_SIZE == x){
+					if(s.getGridX() == x){
 						signsInPlane.add(s);
 					}
 				}
@@ -190,7 +190,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
-					if(b.getY() / CUBE_SIZE == y){
+					if(b.getGridY() == y){
 						xzWalls.add(b.getTopBox());
 					}
 				}
@@ -198,7 +198,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
-					if(s.getY() / CUBE_SIZE == y){
+					if(s.getGridY() == y){
 						xzWalls.add(s.getTopSign());
 					}
 				}
@@ -207,7 +207,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
-					if(b.getY() / CUBE_SIZE == y){
+					if(b.getGridY() == y){
 						xzBoxes.add(b.getTopBox());
 					}
 				}
@@ -216,7 +216,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
-					if(s.getY() / CUBE_SIZE == y){
+					if(s.getGridY() == y){
 						signsInPlane.add(s);
 					}
 				}
@@ -234,7 +234,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
-					if(b.getZ() / CUBE_SIZE == z){
+					if(b.getGridZ() == z){
 						xyWalls.add(b.getSideBox());
 					}
 				}
@@ -242,7 +242,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
-					if(s.getZ() / CUBE_SIZE == z){
+					if(s.getGridZ() == z){
 						xyWalls.add(s.getSideSign());
 					}
 				}
@@ -251,7 +251,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Box){
 					Box b = (Box)a;
-					if(b.getZ() / CUBE_SIZE == z){
+					if(b.getGridZ() == z){
 						xyBoxes.add(b.getSideBox());
 					}
 				}
@@ -260,7 +260,7 @@ public class World {
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
-					if(s.getZ() / CUBE_SIZE == z){
+					if(s.getGridZ() == z){
 						signsInPlane.add(s);
 					}
 				}

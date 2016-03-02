@@ -7,4 +7,7 @@ public interface ActiveObject {
 	public float getX();
 	public float getY();
 	public float getZ();
+	public int getGridX();
+	public int getGridY();
+	public int getGridZ();
 }
