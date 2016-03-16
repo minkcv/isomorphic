@@ -34,9 +34,13 @@ public class Game {
 			loadGame();
 		}
 		else{
-			player = new Player(this, 0, 10, 0);
-			world.loadWorld(4);			
+			player = new Player(this, 70, 10, 10);
+			world.loadWorld(1);
 		}
+//		Message startMessage = new Message("Use WASD to move and E to read markers.");
+//		messenger.setActiveMessage(startMessage);
+//		messenger.activate();
+//		player.readMessage(startMessage);
 	}
 
 	public void update(int delta){
@@ -79,11 +83,12 @@ public class Game {
 
 		camera.undoTransform();
 		
-		GL11.glTranslatef(15 - scale, 15 - scale, -scale);
+		GL11.glTranslatef(zoom - scale + 2, zoom - scale + 2, -scale);
 		camera.rotateToCamera();
+		GL11.glLineWidth(2);
 		axes.render();
 		camera.undoRotate();
-		GL11.glTranslatef(-(15 - scale), -(15 - scale), scale);
+		GL11.glTranslatef(-(zoom - scale + 2), -(zoom - scale + 2), scale);
 		
 		if(messenger.isActive())
 			messenger.render();
@@ -95,13 +100,12 @@ public class Game {
 			saveGame(saveID, world.getWorldID());
 			return;
 		}
-		int[] destination = world.playerOnPortal(playerX, playerY, playerZ);
-		if(destination[0] > 0){
-			int destID = destination[0];
-			int destWorld = destination[1];
-			world.loadWorld(destWorld);
-			int[] portalPosition = world.getPositionOfPortal(destID);
+		Portal p = world.playerOnPortal(playerX, playerY, playerZ);
+		if(p != null){
+			world.loadWorld(p.getDestinationWorld());
+			int[] portalPosition = world.getPositionOfPortal(p.getDestinationID());
 			player.setPosition(portalPosition[0] * World.CUBE_SIZE, portalPosition[1] * World.CUBE_SIZE, portalPosition[2] * World.CUBE_SIZE);
+			camera.hardRotate(p.getCameraDirection());
 			return;
 		}
 	}

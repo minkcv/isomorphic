@@ -14,7 +14,7 @@ public class Messenger {
 	private float bottomMargin = 20;
 	private float topMargin = 600;
 	private float textPadding = 16;
-	private long printSpeed = 75; // milliseconds between chars
+	private long printSpeed = 50; // milliseconds between chars
 	private int fontSize = 32;
 	private long lastPrintTime;
 	private Message activeMessage;

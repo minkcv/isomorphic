@@ -32,7 +32,13 @@ public class Main {
 	private PixelFormat renderSettings;
 
 	public static void main(String[] args){
-		new Main();
+		try{
+			new Main();
+		}
+		catch(Exception e){ // necessary to close the game on exception or the cursors is locked in the crashed game
+			e.printStackTrace();
+			System.exit(0);
+		}
 	}
 
 	public Main(){

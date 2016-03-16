@@ -16,10 +16,11 @@ public class Portal implements ActiveObject {
 	private Rectangle xyPortalRect;
 	private Rectangle xzPortalRect;
 	private Rectangle yzPortalRect;
+	private char cameraDirection;
 	public Portal(float x, float y, float z, 
 			float width, float height, float depth, 
 			float red, float green, float blue,
-			int destID, int destWorld, int currID){
+			int destID, int destWorld, int currID, char cameraDirection){
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -38,6 +39,7 @@ public class Portal implements ActiveObject {
 		destinationID = destID;
 		destinationWorld = destWorld;
 		currentID = currID;
+		this.cameraDirection = cameraDirection;
 	}
 	@Override
 	public void update(World world, Camera.Direction direction) {
@@ -56,14 +58,11 @@ public class Portal implements ActiveObject {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTranslatef(x, y, z);
-		if(direction == Camera.Direction.ISO || direction == Camera.Direction.FREE){
+		if(direction == Camera.Direction.ISO || direction == Camera.Direction.FREE || direction == Camera.Direction.Y){
 			renderISO();
 		}
 		else if(direction == Camera.Direction.X || direction == Camera.Direction.Z){
 			renderSide(shade);
-		}
-		else if(direction == Camera.Direction.Y){
-			renderTop();
 		}
 		GL11.glTranslatef(-x, -y, -z);
 		GL11.glDisable(GL11.GL_BLEND);
@@ -93,23 +92,6 @@ public class Portal implements ActiveObject {
 			GL11.glVertex3f(-1, height, depth);
 			GL11.glColor4f(r, g, b, 0);
 			GL11.glVertex3f(-1, height, 0);
-		}
-		GL11.glEnd();
-
-	}
-
-	private void renderTop(){
-		// special floor that is 1 pixel above base y
-		GL11.glBegin(GL11.GL_QUADS);
-		{
-			GL11.glColor4f(r, g, b, 1);
-			GL11.glVertex3f(0, 1, 0);
-			GL11.glColor4f(r, g, b, 1);
-			GL11.glVertex3f(width, 1, 0);
-			GL11.glColor4f(r, g, b, 1);
-			GL11.glVertex3f(width, 1, depth);
-			GL11.glColor4f(r, g, b, 1);
-			GL11.glVertex3f(0, 1, depth);
 		}
 		GL11.glEnd();
 
@@ -178,4 +160,5 @@ public class Portal implements ActiveObject {
 	public int getDestinationID(){ return destinationID; }
 	public int getDestinationWorld(){ return destinationWorld; }
 	public int getCurrentID(){ return currentID; }
+	public char getCameraDirection(){ return cameraDirection; }
 }

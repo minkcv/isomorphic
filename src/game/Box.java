@@ -9,9 +9,9 @@ public class Box extends Cube implements ActiveObject {
 	public Box(float x, float y, float z, 
 			float width, float height, float depth,
 			float r, float g, float b){
-		super(x, y, z, width, height, depth, r, g, b);
+		super(x, y, z, width, height, depth, r, g, b, false);
 
-		topBox = new TopBox((int)x, (int)z, (int)width, (int)height);
+		topBox = new TopBox((int)x, (int)z, (int)width, (int)depth);
 		sideBox = new SideBox((int)x, (int)y, (int)width, (int)height);
 	}
 

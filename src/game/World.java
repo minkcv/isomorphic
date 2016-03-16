@@ -1,17 +1,12 @@
 package game;
-import gui.Message;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
-
 import org.lwjgl.opengl.GL11;
-
-//import org.newdawn.slick.Color;
 
 
 public class World {
@@ -31,6 +26,7 @@ public class World {
 	private ArrayList<SideBox> yzBoxes;
 	private ArrayList<TopBox>  xzBoxes;
 	private ArrayList<Sign> signsInPlane;
+	private ArrayList<Switch> switchesInPlane;
 	private int worldID;
 
 	// does not load a world
@@ -43,6 +39,7 @@ public class World {
 		xyBoxes = new ArrayList<SideBox>();
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
+		switchesInPlane = new ArrayList<Switch>();
 		activeObjects = new ArrayList<ActiveObject>();
 		backgroundRGB = new float[3];
 	}
@@ -54,6 +51,7 @@ public class World {
 		xyWalls = new ArrayList<Wall>();
 		xyBoxes = new ArrayList<SideBox>();
 		yzBoxes = new ArrayList<SideBox>();
+		switchesInPlane = new ArrayList<Switch>();
 		xzBoxes = new ArrayList<TopBox>();
 		activeObjects = new ArrayList<ActiveObject>();
 		backgroundRGB = new float[3];
@@ -75,7 +73,12 @@ public class World {
 						if(c.getAlpha() == 255){
 							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE, 
 									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
-									c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f);
+									c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, false);
+						}
+						else if(c.getAlpha() == 127 && c.getRed() == 127 && c.getBlue() == 127 && c.getGreen() == 127){
+							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE,
+									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
+									0, 0, 0, true);
 						}
 					}
 				}
@@ -93,7 +96,7 @@ public class World {
 					activeObjects.add(new Portal(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x. y, z
 							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, // width, height, depth
 							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), // red green blue
-							objectsFile.nextInt(), objectsFile.nextInt(), objectsFile.nextInt())); // destID, destWorld, currentID
+							objectsFile.nextInt(), objectsFile.nextInt(), objectsFile.nextInt(), objectsFile.next().charAt(0))); // destID, destWorld, currentID, direction
 					break;
 				case "save":
 					activeObjects.add(new SavePoint(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
@@ -107,7 +110,19 @@ public class World {
 				case "sign":
 					activeObjects.add(new Sign(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
 							CUBE_SIZE, CUBE_SIZE * 2, CUBE_SIZE, // width, height, depth
-							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextLine()));
+							objectsFile.nextLine())); // message
+					break;
+				case "switch":
+					activeObjects.add(new Switch(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
+							CUBE_SIZE, CUBE_SIZE / 4, CUBE_SIZE, // width, height, depth 
+							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), // r g b
+							objectsFile.nextInt(), objectsFile.nextLong()));
+					break;
+				case "switchcube":
+					activeObjects.add(new SwitchCube(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z
+							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, // width, depth, height
+							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), // r g b
+							objectsFile.nextInt(), objectsFile.nextInt() == 1)); // switchid, mode
 					break;
 				}
 			}
@@ -116,8 +131,19 @@ public class World {
 	}
 
 	public void update(Camera.Direction direction){
-		for(ActiveObject b : activeObjects){
-			b.update(this, direction);
+		for(ActiveObject a : activeObjects){
+			a.update(this, direction);
+			if(a instanceof SwitchCube){
+				SwitchCube s = (SwitchCube)a;
+				for(Switch sw : switchesInPlane){
+					if(s.getSwitchID() == sw.getSwitchID() && sw.isActive()){
+						s.setActive(s.getMode());
+					}
+					else{
+						s.setActive(! s.getMode());
+					}
+				}
+			}
 		}
 	}
 
@@ -146,12 +172,16 @@ public class World {
 						yzWalls.add(b.getSideBox());
 					}
 				}
-			}
-			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
 					if(s.getGridX() == x){
 						yzWalls.add(s.getSideSign());
+					}
+				}
+				if(a instanceof SwitchCube){
+					SwitchCube s = (SwitchCube)a;
+					if(s.isActive()){
+						yzWalls.add(s.getSideBox());
 					}
 				}
 			}
@@ -170,6 +200,15 @@ public class World {
 					Sign s = (Sign)a;
 					if(s.getGridX() == x){
 						signsInPlane.add(s);
+					}
+				}
+			}
+			switchesInPlane = new ArrayList<Switch>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Switch){
+					Switch s = (Switch)a;
+					if(s.getGridX() == x){
+						switchesInPlane.add(s);
 					}
 				}
 			}
@@ -194,12 +233,16 @@ public class World {
 						xzWalls.add(b.getTopBox());
 					}
 				}
-			}
-			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
 					if(s.getGridY() == y){
 						xzWalls.add(s.getTopSign());
+					}
+				}
+				if(a instanceof SwitchCube){
+					SwitchCube s = (SwitchCube)a;
+					if(s.isActive()){
+						xzWalls.add(s.getTopBox());
 					}
 				}
 			}
@@ -221,6 +264,15 @@ public class World {
 					}
 				}
 			}
+			switchesInPlane = new ArrayList<Switch>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Switch){
+					Switch s = (Switch)a;
+					if(s.getGridY() == y){
+						switchesInPlane.add(s);
+					}
+				}
+			}
 		}
 		else if(direction == Camera.Direction.Z){ // side
 			xyWalls = new ArrayList<Wall>();
@@ -238,12 +290,16 @@ public class World {
 						xyWalls.add(b.getSideBox());
 					}
 				}
-			}
-			for(ActiveObject a : activeObjects){
 				if(a instanceof Sign){
 					Sign s = (Sign)a;
 					if(s.getGridZ() == z){
 						xyWalls.add(s.getSideSign());
+					}
+				}
+				if(a instanceof SwitchCube){
+					SwitchCube s = (SwitchCube)a;
+					if(s.isActive()){
+						xyWalls.add(s.getSideBox());
 					}
 				}
 			}
@@ -265,13 +321,22 @@ public class World {
 					}
 				}
 			}
+			switchesInPlane = new ArrayList<Switch>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Switch){
+					Switch s = (Switch)a;
+					if(s.getGridZ() == z){
+						switchesInPlane.add(s);
+					}
+				}
+			}
 		}
 	}
 
 	public void cullCubes(float centerX, float centerY, float centerZ, float distance){
 		for (int i = 0; i < cubes.length; i++) {
 			for (int j = 0; j < cubes[i].length; j++) {
-				for (int j2 = 0; j2 < cubes[i][j2].length; j2++) {
+				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
 					if(cubes[i][j][j2] != null){
 						float cubeX = i * CUBE_SIZE;
 						float cubeY = j * CUBE_SIZE;
@@ -372,23 +437,19 @@ public class World {
 	 * @param playerY
 	 * @param playerZ
 	 * @return portal information:<br>
-	 *  destination[0] = portal destination id<br>
-	 *  destination[1] = portal destination world
-	 *  returns {0, 0} if not on a portal
+	 *  portal contains destination world, id and camera direction
+	 *  returns null if not on a portal
 	 */
-	public int[] playerOnPortal(int playerX, int playerY, int playerZ){
-		int[] destination = {0, 0};
+	public Portal playerOnPortal(int playerX, int playerY, int playerZ){
 		for(ActiveObject a : activeObjects){
 			if(a instanceof Portal){
 				Portal p = (Portal)a;
 				if(Math.abs(p.getX() - playerX) < CUBE_SIZE && Math.abs(p.getY() - playerY) < CUBE_SIZE && Math.abs(p.getZ() - playerZ) < CUBE_SIZE){
-					destination[0] = p.getDestinationID();
-					destination[1] = p.getDestinationWorld();
-					return destination;
+					return p;
 				}
 			}
 		}
-		return destination;
+		return null;
 	}
 
 	/**
@@ -467,6 +528,9 @@ public class World {
 	}
 	public ArrayList<Sign> getSignsInPlane(){
 		return signsInPlane;
+	}
+	public ArrayList<Switch> getSwitchesInPlane(){
+		return switchesInPlane;
 	}
 	public float[] getBackgroundRGB(){ return backgroundRGB; }
 

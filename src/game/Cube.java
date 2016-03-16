@@ -5,27 +5,29 @@ import org.lwjgl.opengl.GL11;
 public class Cube {
 
 	protected float x, y, z;
-	protected float r, g, b;
+	protected float r, g, b, a;
 	protected float width, height, depth;
 	protected boolean culled;
+	private boolean invisible;
 
 	public Cube(float x, float y, float z, 
 			float width, float height, float depth,
-			float r, float g, float b){
+			float r, float g, float b, boolean invisible){
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.r = r;
 		this.g = g;
 		this.b = b;
+		this.invisible = invisible;
 		this.width = width;
-		this.depth = height;
-		this.height = depth;
+		this.depth = depth;
+		this.height = height;
 		culled = false;
 	}
 
 	public void render(float shade){
-		if(!culled){
+		if(!culled && !invisible){
 			GL11.glTranslatef(x, y, z);
 			GL11.glBegin(GL11.GL_QUADS);
 			{

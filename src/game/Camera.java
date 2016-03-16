@@ -20,10 +20,10 @@ public class Camera {
 	private Direction previousDirection;
 	public Camera(Game game){
 		this.game = game;
-		direction = Direction.X;
-		newXRotation = 90;
+		direction = Direction.Z;
+		newXRotation = 0;
 		newYRotation = 0;
-		xRotation = 90;
+		xRotation = 0;
 		yRotation = 0;
 	}
 
@@ -138,6 +138,29 @@ public class Camera {
 		cameraX = x;
 		cameraY = y;
 		cameraZ = z;
+	}
+	public void hardRotate(char r){
+		if(r == 'x'){
+			direction = Direction.X;
+			newXRotation = 90;
+			newYRotation = 0;
+			xRotation = 90;
+			yRotation = 0;
+		}
+		else if(r == 'y'){
+			direction = Direction.Y;
+			newXRotation = 0;
+			newYRotation = 90;
+			xRotation = 0;
+			yRotation = 90;
+		}
+		else if(r == 'z'){
+			direction = Direction.Z;
+			newXRotation = 0;
+			newYRotation = 0;
+			xRotation = 0;
+			yRotation = 0;
+		}
 	}
 
 	public Direction getDirection(){

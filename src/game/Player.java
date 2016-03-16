@@ -30,24 +30,41 @@ public class Player {
 	}
 
 	public void update(Camera.Direction direction, World world){
-		
 		if(! readingMessage){
 			if(direction == Camera.Direction.X){
 				sidePlayer.update(world.getYZWalls(), world.getYZBoxes(), (int)z, (int)y, false);
 				z = sidePlayer.getX();
 				y = sidePlayer.getY();
 				onGround = sidePlayer.onGround();
+				for(Switch s : world.getSwitchesInPlane()){
+					s.setPressed(false);
+					if(sidePlayer.intersects(s.getSideRectangle())){
+						s.setPressed(true);
+					}
+				}
 			}
 			else if(direction == Camera.Direction.Y){
 				topPlayer.update(world.getXZWalls(), world.getXZBoxes(), (int)x, (int)z);
 				x = topPlayer.getX();
 				z = topPlayer.getY();
+				for(Switch s : world.getSwitchesInPlane()){
+					s.setPressed(false);
+					if(topPlayer.intersects(s.getTopRectangle())){
+						s.setPressed(true);
+					}
+				}
 			}
 			else if(direction == Camera.Direction.Z){
 				sidePlayer.update(world.getXYWalls(), world.getXYBoxes(), (int)x, (int)y, true);
 				x = sidePlayer.getX();
 				y = sidePlayer.getY();
 				onGround = sidePlayer.onGround();
+				for(Switch s : world.getSwitchesInPlane()){
+					s.setPressed(false);
+					if(sidePlayer.intersects(s.getSideRectangle())){
+						s.setPressed(true);
+					}
+				}
 			}
 		}
 
@@ -201,6 +218,12 @@ public class Player {
 	public int getGridY(){ return (int)y / World.CUBE_SIZE; }
 	public int getGridZ(){ return (int)z / World.CUBE_SIZE; }
 	
+	/** disable the player while a message gets read.
+	 	you will need to send the message to the messenger and activate it too! */
+	public void readMessage(Message m){
+		readingMessage = true;
+		currentMessage = m;
+	}
 	public boolean isReadingMessage(){ return readingMessage; }
 	public boolean isOnGround(){ return onGround; }
 

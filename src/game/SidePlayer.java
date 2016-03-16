@@ -38,6 +38,7 @@ public class SidePlayer {
 		jumpSpeed = 2;
 		maxFallSpeed = -4;
 		fallFactor = normalFallFactor;
+		bounding = new Rectangle(x, y, width, height);
 	}
 
 	public void update(ArrayList<Wall> walls, ArrayList<SideBox> boxes, int playerX, int playerY, boolean zSide){
