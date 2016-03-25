@@ -132,60 +132,150 @@ public class Player {
 		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glTranslatef(x, y, z);
-		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glBegin(GL11.GL_TRIANGLES);
 		{
+			// light faces
+			// front z face
+			GL11.glColor3f(1, 1, 1);
 			GL11.glNormal3f(0, 0, -1);
-			GL11.glColor3f(0, 0, 0);
 			GL11.glVertex3f(0, 0, 0);
-			GL11.glColor3f(1, 1, 1);
+			GL11.glVertex3f(width / 2, 0, 0);
+			GL11.glVertex3f(width / 2, height, 0);
+			
+			GL11.glVertex3f(width / 2, height, 0);
 			GL11.glVertex3f(0, height, 0);
-			GL11.glVertex3f(width, height, 0);
-			GL11.glColor3f(0, 0, 0);
-			GL11.glVertex3f(width, 0, 0);
-
-			//bottom
-			GL11.glNormal3f(0, -1, 0);
-			GL11.glColor3f(0, 0, 0);
 			GL11.glVertex3f(0, 0, 0);
-			GL11.glVertex3f(width, 0, 0);
-			GL11.glVertex3f(width, 0, depth);
-			GL11.glVertex3f(0, 0, depth);
-
+			
+			// front x face
 			GL11.glNormal3f(-1, 0, 0);
-			GL11.glColor3f(0, 0, 0);
 			GL11.glVertex3f(0, 0, 0);
-			GL11.glVertex3f(0, 0, depth);
-			GL11.glColor3f(1, 1, 1);
-			GL11.glVertex3f(0, height, depth);
+			GL11.glVertex3f(0, 0, depth / 2);
+			GL11.glVertex3f(0, height, depth / 2);
+			
+			GL11.glVertex3f(0, height, depth / 2);
 			GL11.glVertex3f(0, height, 0);
-
-			GL11.glNormal3f(0, 0, 1);
-			GL11.glColor3f(1, 1, 1);
-			GL11.glVertex3f(width, height, depth);
-			GL11.glVertex3f(0, height, depth);
-			GL11.glColor3f(0, 0, 0);
-			GL11.glVertex3f(0, 0, depth);
-			GL11.glVertex3f(width, 0, depth);
-
-			//top
+			GL11.glVertex3f(0, 0, 0);
+			
+			// top face
 			GL11.glNormal3f(0, 1, 0);
-			GL11.glColor3f(1, 1, 1);
-			GL11.glVertex3f(width, height, depth);
-			GL11.glVertex3f(width, height, 0);
 			GL11.glVertex3f(0, height, 0);
-			GL11.glVertex3f(0, height, depth);
-
-			GL11.glNormal3f(1, 0, 0);
-			GL11.glColor3f(1, 1, 1);
-			GL11.glVertex3f(width, height, depth);
+			GL11.glVertex3f(width / 2, height, 0);
+			GL11.glVertex3f(0, height, depth / 2);
+			
+			// dark faces
+			// front z faces
 			GL11.glColor3f(0, 0, 0);
-			GL11.glVertex3f(width, 0, depth);
+			GL11.glNormal3f(0, 0, -1);
+			GL11.glVertex3f(width / 2, 0, 0);
 			GL11.glVertex3f(width, 0, 0);
-			GL11.glColor3f(1, 1, 1);
 			GL11.glVertex3f(width, height, 0);
+			
+			GL11.glVertex3f(width, height, 0);
+			GL11.glVertex3f(width / 2, height, 0);
+			GL11.glVertex3f(width / 2, 0, 0);
+			
+			// front x faces
+			GL11.glNormal3f(-1, 0, 0);
+			GL11.glVertex3f(0, 0, depth / 2);
+			GL11.glVertex3f(0, 0, depth);
+			GL11.glVertex3f(0, height, depth);
+			
+			GL11.glVertex3f(0, height, depth);
+			GL11.glVertex3f(0, height, depth / 2);
+			GL11.glVertex3f(0, 0, depth / 2);
+			
+			// back z face
+			GL11.glNormal3f(0, 0, 1);
+			GL11.glVertex3f(0, 0, depth);
+			GL11.glVertex3f(width, 0, depth);
+			GL11.glVertex3f(width, height, depth);
+			
+			GL11.glVertex3f(0, 0, depth);
+			GL11.glVertex3f(width, height, depth);
+			GL11.glVertex3f(0, height, depth);
+			
+			// back x face
+			GL11.glNormal3f(1, 0, 0);
+			GL11.glVertex3f(width, height, depth);
+			GL11.glVertex3f(width, 0, 0);
+			GL11.glVertex3f(width, 0, depth);
+			
+			GL11.glVertex3f(width, 0, 0);
+			GL11.glVertex3f(width, height, 0);
+			GL11.glVertex3f(width, height, depth);
+			
+			// top face
+			GL11.glVertex3f(width, height, depth);
+			GL11.glVertex3f(width, height, 0);
+			GL11.glVertex3f(width / 2, height, 0);
+			
+			GL11.glVertex3f(width, height, depth);
+			GL11.glVertex3f(0, height, depth);
+			GL11.glVertex3f(0, height, depth / 2);
+			
+			GL11.glVertex3f(width, height, depth);
+			GL11.glVertex3f(0, height, depth / 2);
+			GL11.glVertex3f(width / 2, height, 0);
+			
 		}
 		GL11.glEnd();
 		GL11.glTranslatef(-x, -y, -z);
+	}
+	
+	private void oldRender(){
+//		GL11.glBegin(GL11.GL_QUADS);
+//		{
+//			GL11.glNormal3f(0, 0, -1);
+//			GL11.glColor3f(0, 0, 0);
+//			GL11.glVertex3f(0, 0, 0);
+//			GL11.glColor3f(1, 1, 1);
+//			GL11.glVertex3f(0, height, 0);
+//			GL11.glVertex3f(width, height, 0);
+//			GL11.glColor3f(0, 0, 0);
+//			GL11.glVertex3f(width, 0, 0);
+//
+//			//bottom
+//			GL11.glNormal3f(0, -1, 0);
+//			GL11.glColor3f(0, 0, 0);
+//			GL11.glVertex3f(0, 0, 0);
+//			GL11.glVertex3f(width, 0, 0);
+//			GL11.glVertex3f(width, 0, depth);
+//			GL11.glVertex3f(0, 0, depth);
+//
+//			GL11.glNormal3f(-1, 0, 0);
+//			GL11.glColor3f(0, 0, 0);
+//			GL11.glVertex3f(0, 0, 0);
+//			GL11.glVertex3f(0, 0, depth);
+//			GL11.glColor3f(1, 1, 1);
+//			GL11.glVertex3f(0, height, depth);
+//			GL11.glVertex3f(0, height, 0);
+//
+//			GL11.glNormal3f(0, 0, 1);
+//			GL11.glColor3f(1, 1, 1);
+//			GL11.glVertex3f(width, height, depth);
+//			GL11.glVertex3f(0, height, depth);
+//			GL11.glColor3f(0, 0, 0);
+//			GL11.glVertex3f(0, 0, depth);
+//			GL11.glVertex3f(width, 0, depth);
+//
+//			//top
+//			GL11.glNormal3f(0, 1, 0);
+//			GL11.glColor3f(1, 1, 1);
+//			GL11.glVertex3f(width, height, depth);
+//			GL11.glVertex3f(width, height, 0);
+//			GL11.glVertex3f(0, height, 0);
+//			GL11.glVertex3f(0, height, depth);
+//
+//			GL11.glNormal3f(1, 0, 0);
+//			GL11.glColor3f(1, 1, 1);
+//			GL11.glVertex3f(width, height, depth);
+//			GL11.glColor3f(0, 0, 0);
+//			GL11.glVertex3f(width, 0, depth);
+//			GL11.glVertex3f(width, 0, 0);
+//			GL11.glColor3f(1, 1, 1);
+//			GL11.glVertex3f(width, height, 0);
+//		}
+//		GL11.glEnd();
 	}
 
 	private Message onSign(ArrayList<Sign> signs, Camera.Direction direction){

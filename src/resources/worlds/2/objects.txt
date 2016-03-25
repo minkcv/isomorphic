@@ -4,4 +4,4 @@
 #box x y z red green blue
 portal 4 1 0 1 1 1 1 1 1 x
 portal 0 1 4 1 1 1 1 3 2 x
-sign 4 1 8 Sometimes options only present themselves after a second examination.
+sign 4 1 8 0 Sometimes options only present themselves after a second examination.

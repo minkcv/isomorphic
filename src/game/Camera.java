@@ -139,6 +139,7 @@ public class Camera {
 		cameraY = y;
 		cameraZ = z;
 	}
+	
 	public void hardRotate(char r){
 		if(r == 'x'){
 			direction = Direction.X;
@@ -160,6 +161,13 @@ public class Camera {
 			newYRotation = 0;
 			xRotation = 0;
 			yRotation = 0;
+		}
+		else if(r == 'i'){
+			direction = Direction.ISO;
+			newXRotation = 45;
+			newYRotation = 45;
+			xRotation = 45;
+			yRotation = 45;
 		}
 	}
 

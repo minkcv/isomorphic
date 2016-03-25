@@ -37,7 +37,7 @@ public class Main {
 		}
 		catch(Exception e){ // necessary to close the game on exception or the cursors is locked in the crashed game
 			e.printStackTrace();
-			System.exit(0);
+			quit();
 		}
 	}
 
@@ -150,9 +150,11 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		if(onMenu){
+			menu.setBackgroundColor();
 			menu.render();
 		}
 		else{
+			game.setBackgroundColor();
 			game.render();
 		}
 	}
@@ -193,5 +195,10 @@ public class Main {
 		}
 		else
 			return true;
+	}
+	
+	public static void quit(){
+		//Display.destroy();
+		System.exit(0);
 	}
 }

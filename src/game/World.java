@@ -18,6 +18,7 @@ public class World {
 	private static int worldSizeX;
 	private static int worldSizeY;
 	private static int worldSizeZ;
+	private boolean hideFrontObjects = false;
 	private ArrayList<ActiveObject> activeObjects;
 	private ArrayList<Wall> xzWalls;
 	private ArrayList<Wall> xyWalls;
@@ -75,7 +76,7 @@ public class World {
 									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
 									c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, false);
 						}
-						else if(c.getAlpha() == 127 && c.getRed() == 127 && c.getBlue() == 127 && c.getGreen() == 127){
+						else if(c.getAlpha() == 127 && c.getRed() == 127 && c.getBlue() == 127 && c.getGreen() == 127){ // invisible cube / wall
 							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE,
 									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
 									0, 0, 0, true);
@@ -110,7 +111,7 @@ public class World {
 				case "sign":
 					activeObjects.add(new Sign(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
 							CUBE_SIZE, CUBE_SIZE * 2, CUBE_SIZE, // width, height, depth
-							objectsFile.nextLine())); // message
+							objectsFile.nextInt(), objectsFile.nextLine())); // textureColor, message
 					break;
 				case "switch":
 					activeObjects.add(new Switch(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x, y, z 
@@ -222,6 +223,10 @@ public class World {
 					}
 
 					if(y - 1 >= 0 && cubes[x2][y - 1][z2] == null){ // no floor
+						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
+					}
+					
+					if(y + 1 < worldSizeY && cubes[x2][y + 1][z2] != null){ // second layer because player is 2 blocks tall
 						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
 				}
@@ -380,14 +385,21 @@ public class World {
 							float distanceFromPlayer = j * CUBE_SIZE - playerY;
 							if(distanceFromPlayer == 0 || distanceFromPlayer == CUBE_SIZE)
 								cubes[i][j][j2].render(0);
-							else if(distanceFromPlayer < 0)
+							else if(distanceFromPlayer < 0){
 								cubes[i][j][j2].render(-distanceFromPlayer / 255);
+							}
 						}
 						else if(direction == Camera.Direction.ISO){
-							cubes[i][j][j2].render(0);
+							if(!hideFrontObjects)
+								cubes[i][j][j2].render(0);
+							else if( i >= playerX / CUBE_SIZE || j2 >= playerZ / CUBE_SIZE)
+								cubes[i][j][j2].render(0);
 						}
 						else if(direction == Camera.Direction.FREE){
-							cubes[i][j][j2].render(0);
+							if(!hideFrontObjects)
+								cubes[i][j][j2].render(0);
+							else if( i >= playerX / CUBE_SIZE || j2 >= playerZ / CUBE_SIZE)
+								cubes[i][j][j2].render(0);
 						}
 					}
 				}
@@ -423,10 +435,16 @@ public class World {
 					a.render(-distanceFromPlayer / 255);
 			}
 			else if(direction == Camera.Direction.ISO){
-				a.render(0);
+				if(!hideFrontObjects)
+					a.render(0);	
+				else if( a.getGridX() >= playerX / CUBE_SIZE || a.getGridZ() >= playerZ / CUBE_SIZE)
+					a.render(0);		
 			}
 			else if(direction == Camera.Direction.FREE){
-				a.render(0);
+				if(!hideFrontObjects)
+					a.render(0);
+				else if( a.getGridX() >= playerX / CUBE_SIZE || a.getGridZ() >= playerZ / CUBE_SIZE)				
+					a.render(0);
 			}
 		}
 	}
@@ -539,4 +557,5 @@ public class World {
 	public static int getSizeZ(){ return worldSizeZ; }
 	public int getWorldID(){ return worldID; }
 	public void setBackgroundColor(){ GL11.glClearColor(backgroundRGB[0], backgroundRGB[1], backgroundRGB[2], 0.0f); }
+	public void setHideFrontObjects(boolean hide){ hideFrontObjects = hide; }
 }

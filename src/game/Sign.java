@@ -13,15 +13,33 @@ public class Sign implements ActiveObject {
 	private float r, g, b;
 	private float width, height, depth;
 	private int gridX, gridY, gridZ;
-	private float margin = 2;
+	private float margin = 0;
 	private Message message;
 	private SideSign sideSign;
 	private TopSign topSign;
 	private Camera.Direction previousDirection;
-	private static Texture sideTexture;
-	private static Texture topTexture;
+	private int textureColor;
+	private static Texture[] sideTextures;
+	private static Texture[] topTextures;
+	private static int numTextures = 3;
+	private Texture sideTexture;
+	private Texture topTexture;
+	// statically load the textures
+	static
+	{
+		sideTextures = new Texture[numTextures];
+		topTextures = new Texture[numTextures];
+		for (int i = 0; i < numTextures; i++) {
+			try {
+				sideTextures[i] = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("resources/sign" + i + ".png"));
+				topTextures[i] = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("resources/sign_top" + i + ".png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	public Sign(float x, float y, float z, 
-			float width, float height, float depth, String messageText){
+			float width, float height, float depth, int textureColor, String messageText){
 		this.x = x + margin / 2;
 		this.y = y;
 		this.z = z + margin / 2;
@@ -31,18 +49,16 @@ public class Sign implements ActiveObject {
 		this.width = width - margin;
 		this.height = height - 2 * margin;
 		this.depth = depth - margin;
+		this.textureColor = textureColor;
+		sideTexture = sideTextures[textureColor];
+		topTexture = topTextures[textureColor];
 		gridX = (int)(x / World.CUBE_SIZE);
 		gridY = (int)(y / World.CUBE_SIZE);
 		gridZ = (int)(z / World.CUBE_SIZE);
 		message = new Message(messageText);
 		topSign = new TopSign((int)this.x, (int)this.z, (int)this.width, (int)this.depth);
 		sideSign = new SideSign((int)this.x, (int)this.y, (int)this.width, (int)this.height);
-		try {
-			sideTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("resources/sign.png"));
-			topTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("resources/sign_top.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
 	}
 
 	@Override

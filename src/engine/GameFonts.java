@@ -13,6 +13,9 @@ import org.newdawn.slick.TrueTypeFont;
  * This draws the fps at the x, y coordinates 20, 20 in white
  */
 public class GameFonts {
+	private static Font awtCourierFont12pt = new Font("Courier", Font.PLAIN, 12);
+	public static TrueTypeFont courierFont12pt = new TrueTypeFont(awtCourierFont12pt, false);
+	
 	private static Font awtCourierFont20pt = new Font("Courier", Font.PLAIN, 20);
 	public static TrueTypeFont courierFont20pt = new TrueTypeFont(awtCourierFont20pt, false);
 	

@@ -9,27 +9,115 @@ public class Menu {
 	private Main main;
 	private boolean enterReleased;
 	private boolean saveExists;
-	private boolean gameInProgress = false;;
+	private boolean gameInProgress = false;
+	private enum MenuItem {
+		START, RESUME, CONTINUE, ABOUT, QUIT
+	}
+	private MenuItem currentItem;
+	private boolean downReleased;
+	private boolean upReleased;
 	public Menu(Main main, boolean saveExists){
 		this.main = main;
 		this.saveExists = saveExists;
+		if(saveExists)
+			currentItem = MenuItem.CONTINUE;
+		else
+			currentItem = MenuItem.START;
 	}
 
 	public void update(){
+		if(gameInProgress){
+			if(Keyboard.isKeyDown(Keyboard.KEY_DOWN) || Keyboard.isKeyDown(Keyboard.KEY_S)){
+				if(downReleased){
+					if(currentItem == MenuItem.RESUME)
+						currentItem = MenuItem.ABOUT;
+					else if(currentItem == MenuItem.ABOUT)
+						currentItem = MenuItem.QUIT;
+					else if(currentItem == MenuItem.QUIT)
+						currentItem = MenuItem.RESUME;
+				}
+				downReleased = false;
+			}
+			else {
+				downReleased = true;
+			}
+
+			if(Keyboard.isKeyDown(Keyboard.KEY_UP) || Keyboard.isKeyDown(Keyboard.KEY_W)){
+				if(upReleased){
+					if(currentItem == MenuItem.QUIT)
+						currentItem = MenuItem.ABOUT;
+					else if(currentItem == MenuItem.ABOUT)
+						currentItem = MenuItem.RESUME;
+					else if(currentItem == MenuItem.RESUME)
+						currentItem = MenuItem.QUIT;
+				}
+				upReleased = false;
+			}
+			else {
+				upReleased = true;
+			}
+		}
+		else{ // game not in progress, title screen
+			if(Keyboard.isKeyDown(Keyboard.KEY_DOWN) || Keyboard.isKeyDown(Keyboard.KEY_S)){
+				if(downReleased){
+					if(currentItem == MenuItem.START && saveExists)
+						currentItem = MenuItem.CONTINUE;
+					else if(currentItem == MenuItem.START && ! saveExists)
+						currentItem = MenuItem.ABOUT;
+					else if(currentItem == MenuItem.CONTINUE)
+						currentItem = MenuItem.ABOUT;
+					else if(currentItem == MenuItem.ABOUT)
+						currentItem = MenuItem.QUIT;
+					else if(currentItem == MenuItem.QUIT)
+						currentItem = MenuItem.START;
+				}
+				downReleased = false;
+			}
+			else {
+				downReleased = true;
+			}
+
+			if(Keyboard.isKeyDown(Keyboard.KEY_UP) || Keyboard.isKeyDown(Keyboard.KEY_W)){
+				if(upReleased){
+					if(currentItem == MenuItem.QUIT)
+						currentItem = MenuItem.ABOUT;
+					else if(currentItem == MenuItem.ABOUT && saveExists)
+						currentItem = MenuItem.CONTINUE;
+					else if(currentItem == MenuItem.ABOUT && ! saveExists)
+						currentItem = MenuItem.START;
+					else if(currentItem == MenuItem.CONTINUE)
+						currentItem = MenuItem.START;
+					else if(currentItem == MenuItem.START)
+						currentItem = MenuItem.QUIT;
+				}
+				upReleased = false;
+			}
+			else {
+				upReleased = true;
+			}
+		}
+		
 		if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)){
 			if(enterReleased){
-				if(gameInProgress){
+				if(currentItem == MenuItem.RESUME){
 					main.resumeGame();
+					gameInProgress = true;
 				}
-				else {
-					if(saveExists){
-						main.startExistingGame();
-						gameInProgress = true;
-					}
-					else{
-						main.startNewGame();
-						gameInProgress = true;
-					}
+				else if(currentItem == MenuItem.CONTINUE){
+					main.startExistingGame();
+					gameInProgress = true;
+					currentItem = MenuItem.RESUME;
+				}
+				else if(currentItem == MenuItem.START){
+					main.startNewGame();
+					gameInProgress = true;
+					currentItem = MenuItem.RESUME;
+				}
+				else if(currentItem == MenuItem.ABOUT){
+					// TODO
+				}
+				else if(currentItem == MenuItem.QUIT){
+					Main.quit();
 				}
 			}
 			enterReleased = false;
@@ -53,20 +141,51 @@ public class Menu {
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 
+		int arrowHeight = 100;
 		if(gameInProgress){
-			GameFonts.courierFont20pt.drawString(20, 20, "Press enter to resume or esc to quit", Color.white);
+			switch(currentItem){
+			case RESUME:
+				arrowHeight = 600;
+				break;
+			case ABOUT:
+				arrowHeight = 620;
+				break;
+			case QUIT:
+				arrowHeight = 660;
+				break;
+			}
+			GameFonts.courierFont20pt.drawString(280, 600, "Resume", Color.white);
+			GameFonts.courierFont20pt.drawString(280, 620, "About", Color.white);
+			GameFonts.courierFont20pt.drawString(280, 660, "Quit", Color.white);
 		}
 		else{
+			switch(currentItem){
+			case START:
+				arrowHeight = 600;
+				break;
+			case CONTINUE:
+				arrowHeight = 620;
+				break;
+			case ABOUT:
+				arrowHeight = 640;
+				break;
+			case QUIT:
+				arrowHeight = 680;
+				break;
+			}
+			GameFonts.courierFont20pt.drawString(280, 600, "Start new game", Color.white);
+			GameFonts.courierFont20pt.drawString(280, 640, "About", Color.white);
+			GameFonts.courierFont20pt.drawString(280, 680, "Quit", Color.white);
 			if(saveExists){
-				GameFonts.courierFont20pt.drawString(20, 20, "Press enter to continue or esc to quit.", Color.white);
+				GameFonts.courierFont20pt.drawString(280, 620, "Continue saved game", Color.white);
 			}
 			else{
-				GameFonts.courierFont20pt.drawString(20, 20, "Press enter to start a new game or esc to quit.", Color.white);
+				GameFonts.courierFont20pt.drawString(280, 620, "Continue saved game", Color.gray);
 			}
 		}
-		GameFonts.courierFont20pt.drawString(20, 40, "WASD to move. Arrows to rotate the world.", Color.white);
+		GameFonts.courierFont20pt.drawString(260, arrowHeight, ">", Color.white);
 	}
 	
 	public boolean isGameInProgress(){ return gameInProgress; }
-	public void setBackgroundColor(){ GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); }
+	public void setBackgroundColor(){ GL11.glClearColor(0.46f, 0.635f, 0.91f, 0.0f); }
 }

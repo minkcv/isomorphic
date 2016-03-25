@@ -3,5 +3,5 @@
 #save x y z
 #box x y z red green blue
 portal 0 1 0 1 1 1 2 2 1 x
-sign 6 1 6 When you rotate you will be aligned to the grid. Be sure of your footing.
-portal 3 9 9 1 1 1 1 4 2 x
+sign 6 1 6 0 When you rotate, you will be aligned to the grid. Be sure of your footing.
+portal 3 9 9 1 1 1 1 4 2 y

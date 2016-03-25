@@ -1,4 +1,5 @@
 package game;
+import engine.GameFonts;
 import engine.Main;
 import engine.Util;
 import gui.Message;
@@ -9,8 +10,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Scanner;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.Color;
 
 
 public class Game {
@@ -21,9 +24,11 @@ public class Game {
 	private float zoom = 10;
 	private float scale; // zoom * cube size
 	private float minZoom = 5;
-	private float maxZoom = 20;
+	private float maxZoom = 30;
 	private Axes3D axes;
 	private Messenger messenger;
+	private boolean showDebugInfo = false;
+	private boolean backTickReleased;
 	public Game(Main main, boolean loadSave){
 		this.main = main;
 		camera = new Camera(this);
@@ -34,8 +39,8 @@ public class Game {
 			loadGame();
 		}
 		else{
-			player = new Player(this, 70, 10, 10);
-			world.loadWorld(1);
+			player = new Player(this, 190, 20, 190); // 70 10 10 for first level
+			world.loadWorld(7);
 		}
 //		Message startMessage = new Message("Use WASD to move and E to read markers.");
 //		messenger.setActiveMessage(startMessage);
@@ -56,23 +61,36 @@ public class Game {
 		messenger.update();
 		
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
-		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
-			world.cullCubes(player.getX(), player.getY(), player.getZ(), scale + World.CUBE_SIZE);
-		else
-			world.cullCubes(player.getX(), player.getY(), player.getZ(), 2 * (scale + World.CUBE_SIZE));
+//		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
+//			world.cullCubes(player.getX(), player.getY(), player.getZ(), scale + World.CUBE_SIZE);
+//		else
+//			world.cullCubes(player.getX(), player.getY(), player.getZ(), 2 * (scale + World.CUBE_SIZE));
 
 		zoom -= Mouse.getDWheel() / 120;
 		if(zoom < minZoom)
 			zoom = minZoom;
 		else if(zoom > maxZoom)
 			zoom = maxZoom;
+		
+		world.setHideFrontObjects(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT));
+			
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_GRAVE)){
+			if(backTickReleased){
+				showDebugInfo = ! showDebugInfo;
+			}
+			backTickReleased = false;
+		}
+		else{
+			backTickReleased = true;
+		}
 	}
 
 	public void render(){
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GL11.glOrtho(-scale, scale, -scale, scale, scale * 2, -scale * 2);
+		GL11.glOrtho(-scale, scale, -scale, scale, 2000, -2000);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 
@@ -92,6 +110,32 @@ public class Game {
 		
 		if(messenger.isActive())
 			messenger.render();
+		
+		if(showDebugInfo)
+			renderDebug();
+	}
+	
+	private void renderDebug(){
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		GL11.glOrtho(0, Main.WIDTH, Main.HEIGHT, 0, -5, 5);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		GL11.glLoadIdentity();
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT); // draw on a new "layer"
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
+
+		GameFonts.courierFont12pt.drawString(0, 0, "FPS: " + main.getFPS(), Color.white);
+		GameFonts.courierFont12pt.drawString(0, 12, "X: " + player.getX(), Color.white);
+		GameFonts.courierFont12pt.drawString(0, 24, "Y: " + player.getY(), Color.white);
+		GameFonts.courierFont12pt.drawString(0, 36, "Z: " + player.getZ(), Color.white);
+		GameFonts.courierFont12pt.drawString(0, 48, "Grid X: " + player.getGridX(), Color.white);
+		GameFonts.courierFont12pt.drawString(0, 60, "Grid Y: " + player.getGridY(), Color.white);
+		GameFonts.courierFont12pt.drawString(0, 72, "Grid Z: " + player.getGridZ(), Color.white);
 	}
 
 	public void usePortalOrSave(int playerX, int playerY, int playerZ){
@@ -106,6 +150,7 @@ public class Game {
 			int[] portalPosition = world.getPositionOfPortal(p.getDestinationID());
 			player.setPosition(portalPosition[0] * World.CUBE_SIZE, portalPosition[1] * World.CUBE_SIZE, portalPosition[2] * World.CUBE_SIZE);
 			camera.hardRotate(p.getCameraDirection());
+			world.computeObjectsInPlane(camera.getDirection(), player.getGridX(), player.getGridY(), player.getGridZ());
 			return;
 		}
 	}
