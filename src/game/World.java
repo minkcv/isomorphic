@@ -127,6 +127,9 @@ public class World {
 					break;
 				}
 			}
+			else{
+				objectsFile.nextLine();
+			}
 		}
 		objectsFile.close();
 	}
