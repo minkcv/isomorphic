@@ -5,5 +5,7 @@
 #sign x y z red green blue [everything after the blue float will be message text]
 #switch x y z r g b id time
 #list all switches before switchcubes
-portal 0 1 0 1 1 1 2 7 1 i
-portal 2 8 2 1 1 1 1 9 2 i
+portal 8 1 9 1 1 1 2 7 1 i
+portal 1 9 0 1 1 1 1 9 2 z
+sign 11 9 11 2 If you're afraid of heights, just remember that you can't fall in the top view.
+item 10 2 4 1 1 1

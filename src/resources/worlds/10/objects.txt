@@ -1,0 +1,17 @@
+# x y z: int, red green blue: float
+#portal x y z red green blue destID destWorld currentID cameraDirection
+#save x y z
+#box x y z red green blue
+#sign x y z red green blue [everything after the blue float will be message text]
+#switch x y z r g b id time
+#list all switches before switchcubes
+portal 6 1 0 1 1 1 2 9 1 y
+#portal to stairs
+portal 6 1 11 1 1 1 1 11 2 y
+#portal to dead end
+portal 11 1 6 1 1 1 1 12 3 y
+#portals on top
+#portal from/to stairs
+portal 6 10 11 1 1 1 2 11 4 y
+#portal to start
+portal 6 10 0 1 1 1 3 9 5 y

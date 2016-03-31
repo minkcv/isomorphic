@@ -6,10 +6,11 @@
 #switch x y z r g b id time
 #list all switches before switchcubes
 #center portal to return to previous world
-portal 19 2 19 1 1 1 1 6 1 i
+portal 19 3 19 1 1 1 2 6 1 i
 #portal to canyon area
-portal 20 8 3 1 1 1 2 8 2 y
-#portals to other uncreated places
-portal 2 2 19 1 1 1 1 9 3 y
-portal 36 2 19 1 1 1 1 10 4 y
-portal 19 2 36 1 1 1 1 11 5 y
+portal 20 9 3 1 1 1 1 8 2 i
+#portal to dark blue area
+portal 2 1 19 1 1 1 1 13 3 x
+#black and white place
+portal 36 3 19 1 1 1 1 20 4 y
+portal 19 3 36 1 1 1 1 11 5 y

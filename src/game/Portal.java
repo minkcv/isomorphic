@@ -28,8 +28,8 @@ public class Portal implements ActiveObject {
 		gridY = (int)(y / World.CUBE_SIZE);
 		gridZ = (int)(z / World.CUBE_SIZE);
 		this.width = width;
-		this.depth = height;
-		this.height = depth;
+		this.height = height;
+		this.depth = depth;
 		xyPortalRect = new Rectangle((int)x, (int)y, (int)width, (int)depth);
 		xzPortalRect = new Rectangle((int)x, (int)z, (int)width, (int)height);
 		yzPortalRect = new Rectangle((int)z, (int)y, (int)depth, (int)height);

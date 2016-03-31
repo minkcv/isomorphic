@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 
 public class Player {
 	private Game game;
+	private ArrayList<Item> collectedItems;
 	private float x, y, z;
 	private float width, depth, height;
 	private TopPlayer topPlayer;
@@ -24,7 +25,7 @@ public class Player {
 		width = World.CUBE_SIZE;
 		height = World.CUBE_SIZE * 2;
 		depth = World.CUBE_SIZE;
-
+		collectedItems = new ArrayList<Item>();
 		topPlayer = new TopPlayer((int)x, (int)z, (int)width, (int)depth);
 		sidePlayer = new SidePlayer((int)z, (int)y, (int)width, (int)height);
 	}
@@ -42,6 +43,12 @@ public class Player {
 						s.setPressed(true);
 					}
 				}
+				for(Item i : world.getItemsInPlane()){
+					if(sidePlayer.intersects(i.getSideRectangle())){
+						collectedItems.add(i);
+						world.collectItem(i);
+					}
+				}
 			}
 			else if(direction == Camera.Direction.Y){
 				topPlayer.update(world.getXZWalls(), world.getXZBoxes(), (int)x, (int)z);
@@ -51,6 +58,12 @@ public class Player {
 					s.setPressed(false);
 					if(topPlayer.intersects(s.getTopRectangle())){
 						s.setPressed(true);
+					}
+				}
+				for(Item i : world.getItemsInPlane()){
+					if(topPlayer.intersects(i.getXZRectangle())){
+						collectedItems.add(i);
+						world.collectItem(i);
 					}
 				}
 			}
@@ -63,6 +76,12 @@ public class Player {
 					s.setPressed(false);
 					if(sidePlayer.intersects(s.getSideRectangle())){
 						s.setPressed(true);
+					}
+				}
+				for(Item i : world.getItemsInPlane()){
+					if(sidePlayer.intersects(i.getSideRectangle())){
+						collectedItems.add(i);
+						world.collectItem(i);
 					}
 				}
 			}
@@ -307,6 +326,8 @@ public class Player {
 	public int getGridX(){ return (int)x / World.CUBE_SIZE; }
 	public int getGridY(){ return (int)y / World.CUBE_SIZE; }
 	public int getGridZ(){ return (int)z / World.CUBE_SIZE; }
+	
+	public ArrayList<Item> getCollectedItems(){ return collectedItems; }
 	
 	/** disable the player while a message gets read.
 	 	you will need to send the message to the messenger and activate it too! */

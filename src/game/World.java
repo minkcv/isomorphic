@@ -28,6 +28,7 @@ public class World {
 	private ArrayList<TopBox>  xzBoxes;
 	private ArrayList<Sign> signsInPlane;
 	private ArrayList<Switch> switchesInPlane;
+	private ArrayList<Item> itemsInPlane;
 	private int worldID;
 
 	// does not load a world
@@ -41,19 +42,21 @@ public class World {
 		yzBoxes = new ArrayList<SideBox>();
 		xzBoxes = new ArrayList<TopBox>();
 		switchesInPlane = new ArrayList<Switch>();
+		itemsInPlane = new ArrayList<Item>();
 		activeObjects = new ArrayList<ActiveObject>();
 		backgroundRGB = new float[3];
 	}
 
-	public void loadWorld(int worldNumber){
+	public void loadWorld(int worldNumber, ArrayList<Item> collectedItems){
 		worldID = worldNumber;
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
 		xyWalls = new ArrayList<Wall>();
 		xyBoxes = new ArrayList<SideBox>();
 		yzBoxes = new ArrayList<SideBox>();
-		switchesInPlane = new ArrayList<Switch>();
 		xzBoxes = new ArrayList<TopBox>();
+		switchesInPlane = new ArrayList<Switch>();
+		itemsInPlane = new ArrayList<Item>();
 		activeObjects = new ArrayList<ActiveObject>();
 		backgroundRGB = new float[3];
 		Scanner worldFile = new Scanner(getClass().getResourceAsStream("/resources/worlds/" + worldNumber + "/world.txt"));
@@ -125,6 +128,10 @@ public class World {
 							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), // r g b
 							objectsFile.nextInt(), objectsFile.nextInt() == 1)); // switchid, mode
 					break;
+				case "item":
+					activeObjects.add(new Item(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x y z
+							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,  // width, depth, height
+							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), worldNumber)); // r g b
 				}
 			}
 			else{
@@ -132,6 +139,18 @@ public class World {
 			}
 		}
 		objectsFile.close();
+		
+		for(Item i : collectedItems){
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Item){
+					Item i2 = (Item)a;
+					if(i2.getWorldID() == i.getWorldID()){
+						activeObjects.remove(i2);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	public void update(Camera.Direction direction){
@@ -216,6 +235,15 @@ public class World {
 					}
 				}
 			}
+			itemsInPlane = new ArrayList<Item>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Item){
+					Item i = (Item)a;
+					if(i.getGridX() == x){
+						itemsInPlane.add(i);
+					}
+				}
+			}
 		}
 		else if(direction == Camera.Direction.Y){ // top
 			xzWalls = new ArrayList<Wall>();
@@ -281,6 +309,15 @@ public class World {
 					}
 				}
 			}
+			itemsInPlane = new ArrayList<Item>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Item){
+					Item i = (Item)a;
+					if(i.getGridY() == y || i.getGridY() == y + 1){
+						itemsInPlane.add(i);
+					}
+				}
+			}
 		}
 		else if(direction == Camera.Direction.Z){ // side
 			xyWalls = new ArrayList<Wall>();
@@ -335,6 +372,15 @@ public class World {
 					Switch s = (Switch)a;
 					if(s.getGridZ() == z){
 						switchesInPlane.add(s);
+					}
+				}
+			}
+			itemsInPlane = new ArrayList<Item>();
+			for(ActiveObject a : activeObjects){
+				if(a instanceof Item){
+					Item i = (Item)a;
+					if(i.getGridZ() == z){
+						itemsInPlane.add(i);
 					}
 				}
 			}
@@ -526,6 +572,15 @@ public class World {
 		System.out.println("Portal not found, check destinations of portals");
 		return null;
 	}
+	
+	public void collectItem(Item i){
+		for(ActiveObject a : activeObjects){
+			if(a.equals(i)){
+				activeObjects.remove(i);
+				break;
+			}
+		}
+	}
 
 
 	public ArrayList<Wall> getXZWalls(){
@@ -552,6 +607,9 @@ public class World {
 	}
 	public ArrayList<Switch> getSwitchesInPlane(){
 		return switchesInPlane;
+	}
+	public ArrayList<Item> getItemsInPlane(){
+		return itemsInPlane;
 	}
 	public float[] getBackgroundRGB(){ return backgroundRGB; }
 

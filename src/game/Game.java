@@ -8,6 +8,7 @@ import gui.Messenger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import org.lwjgl.input.Keyboard;
@@ -39,8 +40,8 @@ public class Game {
 			loadGame();
 		}
 		else{
-			player = new Player(this, 190, 20, 190); // 70 10 10 for first level
-			world.loadWorld(7);
+			player = new Player(this, 190, 40, 190); // 70 10 10 for first level
+			world.loadWorld(7, player.getCollectedItems());
 		}
 //		Message startMessage = new Message("Use WASD to move and E to read markers.");
 //		messenger.setActiveMessage(startMessage);
@@ -146,7 +147,7 @@ public class Game {
 		}
 		Portal p = world.playerOnPortal(playerX, playerY, playerZ);
 		if(p != null){
-			world.loadWorld(p.getDestinationWorld());
+			world.loadWorld(p.getDestinationWorld(), player.getCollectedItems());
 			int[] portalPosition = world.getPositionOfPortal(p.getDestinationID());
 			player.setPosition(portalPosition[0] * World.CUBE_SIZE, portalPosition[1] * World.CUBE_SIZE, portalPosition[2] * World.CUBE_SIZE);
 			camera.hardRotate(p.getCameraDirection());
@@ -167,6 +168,7 @@ public class Game {
 			}
 			String saveData = saveID + " " + worldID;
 			System.out.println("Saved game, world: " + worldID + " save: " + saveID);
+			//TODO save collectibles
 			saveDataOut.write(saveData.getBytes());
 			saveDataOut.flush();
 			saveDataOut.close();
@@ -189,9 +191,10 @@ public class Game {
 				try{
 					int saveID = Integer.parseInt(saveDataScanner.next());
 					int worldID = Integer.parseInt(saveDataScanner.next());
-					world.loadWorld(worldID);
+					world.loadWorld(worldID, new ArrayList<Item>());
 					int[] position = world.getPositionOfSave(saveID);
 					player = new Player(this, position[0] * World.CUBE_SIZE, position[1] * World.CUBE_SIZE, position[2] * World.CUBE_SIZE);
+					//TODO load collectibles
 					System.out.println("Loaded save data, world: " + worldID + " save: " + saveID);
 				}catch(NumberFormatException e){
 					saveDataScanner.close();
