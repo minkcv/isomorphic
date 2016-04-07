@@ -68,7 +68,7 @@ public class SwitchCube extends Cube implements ActiveObject {
 	@Override
 	public void render(float shade) {
 		if(active)
-			super.render(shade);
+			super.render(shade, true);
 	}
 	public SideBox getSideBox(){
 		return sideBox;

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 import org.lwjgl.opengl.GL11;
@@ -12,7 +13,7 @@ import org.lwjgl.opengl.GL11;
 public class World {
 	private Game game;
 	private Cube[][][] cubes;
-	private Light light;
+	private static Light light;
 	private float[] backgroundRGB;
 	public static final int CUBE_SIZE = 10;
 	private static int worldSizeX;
@@ -30,11 +31,15 @@ public class World {
 	private ArrayList<Switch> switchesInPlane;
 	private ArrayList<Item> itemsInPlane;
 	private int worldID;
+	private boolean itemInCurrentWorld = false;
+	
+	static {
+		light = new Light(-60, 50, -30);
+	}
 
 	// does not load a world
 	public World(Game game){
 		this.game = game;
-		light = new Light(-60, 50, -30);
 		yzWalls = new ArrayList<Wall>();
 		xzWalls = new ArrayList<Wall>();
 		xyWalls = new ArrayList<Wall>();
@@ -75,9 +80,27 @@ public class World {
 					for (int z = 0; z < worldSizeZ; z++) {
 						Color c = new Color(worldMap.getRGB(x, z), true);
 						if(c.getAlpha() == 255){
-							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE, 
-									CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
-									c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, false);
+							if(worldID < 25 || worldID > 28){
+								cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE, 
+										CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
+										c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, false);
+							}
+							else {
+								String textureName = "";
+								if(worldID == 25){
+									textureName = new Random().nextInt(10) + "";
+								}
+								else if(worldID == 26){
+									textureName = new Random().nextInt(10)+ 10 + "";
+								}
+								else if(worldID >= 27){
+									textureName = (char)( new Random().nextInt(26) + 97) + "";
+								}
+								
+								cubes[x][y][z] = new TextureCube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE, 
+										CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,
+										c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, false, textureName);
+							}
 						}
 						else if(c.getAlpha() == 127 && c.getRed() == 127 && c.getBlue() == 127 && c.getGreen() == 127){ // invisible cube / wall
 							cubes[x][y][z] = new Cube(x * CUBE_SIZE, y * CUBE_SIZE, z * CUBE_SIZE,
@@ -88,6 +111,28 @@ public class World {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+		}
+		
+		for (int x = 0; x < cubes.length; x++) {
+			for (int y = 0; y < cubes[x].length; y++) {
+				for (int z = 0; z < cubes[x][y].length; z++) {
+					boolean beforeX = false, beforeY = false, beforeZ = false, afterX = false, afterY = false, afterZ = false;
+					if(x > 0)
+						beforeX = cubes[x - 1][y][z] != null && !cubes[x - 1][y][z].isInvisible();
+					if(y > 0)
+						beforeY = cubes[x][y - 1][z] != null && !cubes[x][y - 1][z].isInvisible();
+					if(z > 0)
+						beforeZ = cubes[x][y][z - 1] != null && !cubes[x][y][z - 1].isInvisible();
+					if(x < cubes.length - 1)
+						afterX = cubes[x + 1][y][z] != null && !cubes[x + 1][y][z].isInvisible();
+					if(y < cubes[x].length - 1)
+						afterY = cubes[x][y + 1][z] != null && !cubes[x][y + 1][z].isInvisible();
+					if(z < cubes[x][y].length - 1)
+						afterZ = cubes[x][y][z + 1] != null && !cubes[x][y][z + 1].isInvisible();
+					if(cubes[x][y][z] != null)
+						cubes[x][y][z].setHiddenFaces(beforeZ, afterY, beforeX, afterZ, beforeY, afterX);
+				}
 			}
 		}
 
@@ -132,6 +177,7 @@ public class World {
 					activeObjects.add(new Item(CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), CUBE_SIZE * objectsFile.nextInt(), // x y z
 							CUBE_SIZE, CUBE_SIZE, CUBE_SIZE,  // width, depth, height
 							objectsFile.nextFloat(), objectsFile.nextFloat(), objectsFile.nextFloat(), worldNumber)); // r g b
+					itemInCurrentWorld = true;
 				}
 			}
 			else{
@@ -139,21 +185,22 @@ public class World {
 			}
 		}
 		objectsFile.close();
-		
+
 		for(Item i : collectedItems){
 			for(ActiveObject a : activeObjects){
 				if(a instanceof Item){
 					Item i2 = (Item)a;
 					if(i2.getWorldID() == i.getWorldID()){
 						activeObjects.remove(i2);
+						itemInCurrentWorld = false;
 						break;
 					}
 				}
 			}
 		}
-	}
+	} // end load world
 
-	public void update(Camera.Direction direction){
+	public void update(Camera.Direction direction, int delta){
 		for(ActiveObject a : activeObjects){
 			a.update(this, direction);
 			if(a instanceof SwitchCube){
@@ -165,6 +212,15 @@ public class World {
 					else{
 						s.setActive(! s.getMode());
 					}
+				}
+			}
+		}
+		
+		for (int x = 0; x < cubes.length; x++) {
+			for (int y = 0; y < cubes[x].length; y++) {
+				for (int z = 0; z < cubes[x][y].length; z++) {
+					if(cubes[x][y][z] != null)
+						cubes[x][y][z].update(delta);
 				}
 			}
 		}
@@ -256,7 +312,7 @@ public class World {
 					if(y - 1 >= 0 && cubes[x2][y - 1][z2] == null){ // no floor
 						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
-					
+
 					if(y + 1 < worldSizeY && cubes[x2][y + 1][z2] != null){ // second layer because player is 2 blocks tall
 						xzWalls.add(new Wall(x2 * CUBE_SIZE, z2 * CUBE_SIZE, CUBE_SIZE, CUBE_SIZE));
 					}
@@ -387,26 +443,6 @@ public class World {
 		}
 	}
 
-	public void cullCubes(float centerX, float centerY, float centerZ, float distance){
-		for (int i = 0; i < cubes.length; i++) {
-			for (int j = 0; j < cubes[i].length; j++) {
-				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
-					if(cubes[i][j][j2] != null){
-						float cubeX = i * CUBE_SIZE;
-						float cubeY = j * CUBE_SIZE;
-						float cubeZ = j2 * CUBE_SIZE;
-						if(Math.abs(centerX - cubeX) > distance || Math.abs(centerY - cubeY) > distance || Math.abs(centerZ - cubeZ) > distance){
-							cubes[i][j][j2].setCulled(true);
-						}
-						else{
-							cubes[i][j][j2].setCulled(false);
-						}
-					}
-				}
-			}
-		}
-	}
-
 	public void render(Camera.Direction direction){
 		float playerX = game.getPlayerPosition()[0];
 		float playerY = game.getPlayerPosition()[1];
@@ -414,41 +450,44 @@ public class World {
 		light.render();
 		for (int i = 0; i < cubes.length; i++) {
 			for (int j = 0; j < cubes[i].length; j++) {
+				if(worldID == 23 && ! itemInCurrentWorld && j == 0){ // very special case
+					j = 1;
+				}
 				for (int j2 = 0; j2 < cubes[i][j].length; j2++) {
 					if(cubes[i][j][j2] != null){
 						if(direction == Camera.Direction.X){
 							float distanceFromPlayer = i * CUBE_SIZE - playerX;
 							if(distanceFromPlayer == 0)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, true);
 							else if(distanceFromPlayer > 0)
-								cubes[i][j][j2].render(distanceFromPlayer / 255);
+								cubes[i][j][j2].render(distanceFromPlayer / 255, true);
 						}
 						else if(direction == Camera.Direction.Z){
 							float distanceFromPlayer = j2 * CUBE_SIZE - playerZ;
 							if(distanceFromPlayer == 0)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, true);
 							else if(distanceFromPlayer > 0)
-								cubes[i][j][j2].render(distanceFromPlayer / 255);
+								cubes[i][j][j2].render(distanceFromPlayer / 255, true);
 						}
 						else if(direction == Camera.Direction.Y){
 							float distanceFromPlayer = j * CUBE_SIZE - playerY;
 							if(distanceFromPlayer == 0 || distanceFromPlayer == CUBE_SIZE)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, true);
 							else if(distanceFromPlayer < 0){
-								cubes[i][j][j2].render(-distanceFromPlayer / 255);
+								cubes[i][j][j2].render(-distanceFromPlayer / 255, true);
 							}
 						}
 						else if(direction == Camera.Direction.ISO){
 							if(!hideFrontObjects)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, false);
 							else if( i >= playerX / CUBE_SIZE || j2 >= playerZ / CUBE_SIZE)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, true);
 						}
 						else if(direction == Camera.Direction.FREE){
 							if(!hideFrontObjects)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, false);
 							else if( i >= playerX / CUBE_SIZE || j2 >= playerZ / CUBE_SIZE)
-								cubes[i][j][j2].render(0);
+								cubes[i][j][j2].render(0, true);
 						}
 					}
 				}
@@ -572,11 +611,12 @@ public class World {
 		System.out.println("Portal not found, check destinations of portals");
 		return null;
 	}
-	
+
 	public void collectItem(Item i){
 		for(ActiveObject a : activeObjects){
 			if(a.equals(i)){
 				activeObjects.remove(i);
+				itemInCurrentWorld = false;
 				break;
 			}
 		}

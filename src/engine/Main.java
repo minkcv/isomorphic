@@ -1,6 +1,7 @@
 package engine;
 
 import game.Game;
+import game.Light;
 
 import java.io.File;
 
@@ -99,11 +100,13 @@ public class Main {
 	
 	public void resumeGame(){
 		onMenu = false;
+		Light.disableAllLights();
 		game.setBackgroundColor();
 	}
 	
 	private void pauseGame(){
 		onMenu = true;
+		Light.disableAllLights();
 		menu.setBackgroundColor();
 	}
 
@@ -121,8 +124,9 @@ public class Main {
 		if(onMenu){
 			menu.update();
 			if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
-				if(escapeReleased)
-					System.exit(0);
+				if(escapeReleased){
+					resumeGame();
+				}
 				escapeReleased = false;
 			}
 			else{

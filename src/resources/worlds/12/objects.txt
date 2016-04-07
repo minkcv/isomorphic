@@ -6,4 +6,4 @@
 #switch x y z r g b id time
 #list all switches before switchcubes
 portal 0 1 6 1 1 1 3 10 1 y
-sign 8 1 6 2 Have you found any secret collectibles? Keep an eye out for them.
+sign 8 1 3 2 Have you found any secret collectibles? Keep an eye out for them.

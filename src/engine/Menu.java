@@ -1,5 +1,8 @@
 package engine;
 
+import game.Light;
+import gui.DemoScene;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
@@ -7,6 +10,7 @@ import org.newdawn.slick.Color;
 
 public class Menu {
 	private Main main;
+	private DemoScene demoScene;
 	private boolean enterReleased;
 	private boolean saveExists;
 	private boolean gameInProgress = false;
@@ -19,6 +23,7 @@ public class Menu {
 	public Menu(Main main, boolean saveExists){
 		this.main = main;
 		this.saveExists = saveExists;
+		demoScene = new DemoScene();
 		if(saveExists)
 			currentItem = MenuItem.CONTINUE;
 		else
@@ -101,15 +106,18 @@ public class Menu {
 			if(enterReleased){
 				if(currentItem == MenuItem.RESUME){
 					main.resumeGame();
+					Light.disableAllLights();
 					gameInProgress = true;
 				}
 				else if(currentItem == MenuItem.CONTINUE){
 					main.startExistingGame();
+					Light.disableAllLights();
 					gameInProgress = true;
 					currentItem = MenuItem.RESUME;
 				}
 				else if(currentItem == MenuItem.START){
 					main.startNewGame();
+					Light.disableAllLights();
 					gameInProgress = true;
 					currentItem = MenuItem.RESUME;
 				}
@@ -128,6 +136,7 @@ public class Menu {
 	}
 
 	public void render(){
+		demoScene.render();
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glDisable(GL11.GL_COLOR_MATERIAL);

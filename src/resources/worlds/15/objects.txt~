@@ -6,4 +6,4 @@
 #switch x y z r g b id time
 #list all switches before switchcubes
 portal 0 1 0 1 1 1 2 14 1 x
-portal 18 1 18 1 1 1 1 16 2 x
+portal 12 1 12 1 1 1 1 16 2 x

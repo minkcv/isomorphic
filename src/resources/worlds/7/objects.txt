@@ -12,5 +12,6 @@ portal 20 9 3 1 1 1 1 8 2 i
 #portal to dark blue area
 portal 2 1 19 1 1 1 1 13 3 x
 #black and white place
-portal 36 3 19 1 1 1 1 20 4 y
-portal 19 3 36 1 1 1 1 11 5 y
+portal 36 3 19 1 1 1 1 20 4 z
+#texture place
+portal 19 3 36 1 1 1 1 25 5 y

@@ -13,14 +13,16 @@ import org.newdawn.slick.TrueTypeFont;
  * This draws the fps at the x, y coordinates 20, 20 in white
  */
 public class GameFonts {
-	private static Font awtCourierFont12pt = new Font("Courier", Font.PLAIN, 12);
+	private static Font awtCourierFont12pt = new Font("Sans Serif", Font.PLAIN, 12);
 	public static TrueTypeFont courierFont12pt = new TrueTypeFont(awtCourierFont12pt, false);
 	
-	private static Font awtCourierFont20pt = new Font("Courier", Font.PLAIN, 20);
+	private static Font awtCourierFont20pt = new Font("Sans Serif", Font.PLAIN, 20);
 	public static TrueTypeFont courierFont20pt = new TrueTypeFont(awtCourierFont20pt, false);
 	
-	private static Font awtCourierFont32pt = new Font("Courier", Font.PLAIN, 32);
+	private static Font awtCourierFont32pt = new Font("Sans Serif", Font.PLAIN, 32);
 	public static TrueTypeFont courierFont32pt = new TrueTypeFont(awtCourierFont32pt, false);
+	
+	private static Font f = new Font("", Font.PLAIN, 32);
 	
 	/**
 	 * Enables and disables settings that make drawing fonts possible outside of Menu.render()

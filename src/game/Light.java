@@ -50,6 +50,17 @@ public class Light {
 		GL11.glEnable(lightId);
 	}
 	
+	public static void disableAllLights(){
+		GL11.glDisable(GL11.GL_LIGHT0);
+		GL11.glDisable(GL11.GL_LIGHT1);
+		GL11.glDisable(GL11.GL_LIGHT2);
+		GL11.glDisable(GL11.GL_LIGHT3);
+		GL11.glDisable(GL11.GL_LIGHT4);
+		GL11.glDisable(GL11.GL_LIGHT5);
+		GL11.glDisable(GL11.GL_LIGHT6);
+		GL11.glDisable(GL11.GL_LIGHT7);
+	}
+	
 	private static FloatBuffer toFloatBuffer(float[] array){
 		ByteBuffer temp = ByteBuffer.allocateDirect(array.length * 8);
 		temp.order(ByteOrder.nativeOrder());

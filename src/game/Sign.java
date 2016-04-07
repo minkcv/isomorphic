@@ -21,15 +21,14 @@ public class Sign implements ActiveObject {
 	private int textureColor;
 	private static Texture[] sideTextures;
 	private static Texture[] topTextures;
-	private static int numTextures = 3;
+	private static final int NUM_TEXTURES = 3;
 	private Texture sideTexture;
 	private Texture topTexture;
-	// statically load the textures
-	static
-	{
-		sideTextures = new Texture[numTextures];
-		topTextures = new Texture[numTextures];
-		for (int i = 0; i < numTextures; i++) {
+	// statically load textures
+	static {
+		sideTextures = new Texture[NUM_TEXTURES];
+		topTextures = new Texture[NUM_TEXTURES];
+		for (int i = 0; i < NUM_TEXTURES; i++) {
 			try {
 				sideTextures[i] = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("resources/sign" + i + ".png"));
 				topTextures[i] = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("resources/sign_top" + i + ".png"));
@@ -89,8 +88,8 @@ public class Sign implements ActiveObject {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		sideTexture.bind();
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST); // for pixel art
-		GL11.glTranslatef(x, y, z);
 		GL11.glColor3f(r - shade, g - shade, b - shade);
+		GL11.glTranslatef(x, y, z);
 		GL11.glBegin(GL11.GL_QUADS);
 		{
 			

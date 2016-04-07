@@ -40,7 +40,7 @@ public class Game {
 			loadGame();
 		}
 		else{
-			player = new Player(this, 190, 40, 190); // 70 10 10 for first level
+			player = new Player(this, 190, 30, 190); // 70 10 10 for first level
 			world.loadWorld(7, player.getCollectedItems());
 		}
 //		Message startMessage = new Message("Use WASD to move and E to read markers.");
@@ -54,19 +54,15 @@ public class Game {
 		camera.update();
 		if(! camera.isRotating()){
 			player.update(camera.getDirection(), world);
-			world.update(camera.getDirection());
+			world.update(camera.getDirection(), delta);
 		}
 		else{
-			world.update(camera.getDirection());
+			world.update(camera.getDirection(), delta);
 		}
 		messenger.update();
 		
 		camera.setPosition(player.getX(), player.getY(), player.getZ());
-//		if(camera.getDirection() != Camera.Direction.ISO && camera.getDirection() != Camera.Direction.FREE)
-//			world.cullCubes(player.getX(), player.getY(), player.getZ(), scale + World.CUBE_SIZE);
-//		else
-//			world.cullCubes(player.getX(), player.getY(), player.getZ(), 2 * (scale + World.CUBE_SIZE));
-
+		
 		zoom -= Mouse.getDWheel() / 120;
 		if(zoom < minZoom)
 			zoom = minZoom;
@@ -74,7 +70,6 @@ public class Game {
 			zoom = maxZoom;
 		
 		world.setHideFrontObjects(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT));
-			
 		
 		if(Keyboard.isKeyDown(Keyboard.KEY_GRAVE)){
 			if(backTickReleased){
